@@ -1,0 +1,41 @@
+Phase 1 Results			
+		(1)	(2)
+VARIABLES	LABELS	Total Farm Production	Total Farm Production
+			
+male_cop_mech_index	Male Coping Mechanism Index	-326.5	-857.3
+		(762.5)	(6,445)
+female_cop_mech_index	Female Coping Mechanism Index	452.5	-181.9
+		(841.5)	(4,876)
+farm_equipment_present_value	Present Value of Farm Equipments	0.316	0.205
+		(0.272)	(0.170)
+net_financial_position	Net Financial Position of HH	-0.347*	-0.944**
+		(0.207)	(0.364)
+reliab_ranking	Reliabilty Ranking Index	108,928***	-46,794
+		(36,870)	(115,472)
+total_value_stock	Total Value of Farm Inventory	1.158***	-0.352
+		(0.382)	(0.607)
+govt_ben_prog_amount_received	Benefit Received from Govt	0.565	-2.792**
+		(0.775)	(1.072)
+5o.caste_group	Caste Group = 5, omitted		-
+			
+6o.caste_group	Caste Group = 6, omitted		-
+			
+3o.religion	Religion = 3, omitted		-
+			
+consumer_durables_present_value	Present Value of Consumer Durables Owned		0.118**
+			(0.0583)
+Constant	Constant	18,664	30,036
+		(31,156)	(58,896)
+			
+Observations		1,044	268
+Number of hh_id_encoded		584	158
+Adjusted R-squared		0.206	0.489
+Household Controls		NO	NO
+Household Fixed Effects		YES	YES
+Time Fixed Effects		YES	YES
+R-squared within model		0.211	0.516
+R-squared overall model		0.473	0.290
+R-squared between model		0.467	0.196
+Robust standard errors in parentheses			
+*** p<0.01, ** p<0.05, * p<0.1			
+Notes: Household controls include caste, religion, type of housing, household facilities and family size			

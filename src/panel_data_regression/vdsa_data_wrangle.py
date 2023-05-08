@@ -1,0 +1,31 @@
+
+
+tag_list=["Coping_Mech", 
+        "Proactive_measure",
+        "Drought_Assistance",
+        "Gen_info",
+        "Fin_assets_liabilities",
+        "Plotlist",
+        "Family_comp",
+        'Landholding',
+        "Livestock_inv",
+        "Farm_Equipment",
+        "Consumer_durables",
+        'Stock_inv',
+        "Gend_decision_making",
+        "Gend_crop_cult",
+        "Info_ranking",
+        "Reliability_ranking",
+        'Govt_assist',
+        "Crop_info_op",
+        "Cult_ip",
+        "Food_item", # food, non-food and exp_foof_non_food are tags connected with f and nf expenses. They are split into 3 and called seperately for the ease of operation.
+        "Non_food_item",
+        "Exp_food_non_food",
+        "Fin_Trans",
+        "Loans",
+        "Prod_Sold",
+        "Sale_pur",
+        "Govt_dev_progs_benefits",
+        "Building"
+        ]

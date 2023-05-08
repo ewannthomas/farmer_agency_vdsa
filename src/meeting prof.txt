@@ -1,0 +1,13 @@
+April 26, 2023
+extrapolate GES values
+
+doc on indices constructed
+
+cultivation should be stripped off its monetary value
+
+we will show x farmers y attri is positvely associate with outcome. so farmer has agency. This outcome's cauisal attribution should be solid.
+Sop outcome should be comparable. Kind of a normalization.
+
+Prof: First have a clear visibility of data. Distribution, missing value counts
+
+documentation on data and pathways

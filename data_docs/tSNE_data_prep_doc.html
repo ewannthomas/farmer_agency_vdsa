@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>VDSA Data Document</title>
+
+    <style>
+      h2 {
+        text-align: center;
+      }
+
+      #verbose{
+        counter-reset: heading;
+        }
+      h2:before{
+        content:counter(heading)". ";
+        counter-increment: heading;
+      }
+      h2{
+        
+      }
+    </style>
+  </head>
+  <body id="verbose">
+    <h1 class="doc_title" position="relative">
+      <strong>VDSA Data Documentation:</strong>
+    </h1>
+
+    <h2>Data Description</h2>
+    <p></p>
+
+    <h2>Data Wrangling</h2>
+    <p>
+      Data wrangling for tSNE and deep learning models were specifically implemented to ensure data quality and allow for better feature engineering. The script deals with each selected schedule using a dedicated method under the VdsaMicrotSNE class object defined <a href ="../../src/tSNE/raw_data_compile.py"> here</a href>
+    </p>
+    <h3>Panel Data Regression</h3>
+    <h3>tSNE and Deep Learning</h3>
+    <h4>
+      General Endowments Schedule (GES)
+      <p>The </p>
+    </h4>
+  </body>
+</html>
