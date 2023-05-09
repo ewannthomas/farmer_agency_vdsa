@@ -9,6 +9,7 @@ docs/**/*.*
 !docs/**/.gitkeep
 results/**/*.*
 !results/**/.gitkeep
+results/**
 
 #Ignoring the pycache, venv and vscode cache
 .vscode
