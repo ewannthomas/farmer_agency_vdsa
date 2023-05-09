@@ -36,7 +36,7 @@ class VdsaMicrotSNE:
         Parameters:
         self: Inherits all the path structures defined in __init__.
         region_folder_position: An integer mentioning the folder position of the region folder (eastindia or satindia) in the windows path of the raw data directory. Teh count starts from zero by adhering to the python list convention.
-                                Example: 'C:\Work ISB\projects\frer\data\raw\eastindia\2012' has region_folder_poition of 6 (starting from 0).
+                                Example: 'C:\Work ISB\projects\frer\data\raw\eastindia\2012' has region_folder_poition of 6 (starting from 0). Similarly for linux systems its 8.
 
         """
 
@@ -152,6 +152,7 @@ class VdsaMicrotSNE:
                         f"*/*/*/*.{tag}.xlsx",
                         f"*/*/*/Farm_equpment.xlsx",
                         f"*/*/*/{tag}.xlsx",
+                        "*/*/*/*.Farm_equipment.xlsx",
                     ]
 
                 else:
@@ -162,8 +163,9 @@ class VdsaMicrotSNE:
 
                     for file in raw_file_paths:
                         # print(file)
-                        parent_region = str(file).split("\\")[region_folder_position]
-                        year = str(file).split("\\")[(region_folder_position + 1)]
+                        # if you are windows systems replace "/" by "\\" to get parent folders and region folder position will be 8
+                        parent_region = str(file).split("/")[region_folder_position]
+                        year = str(file).split("/")[(region_folder_position + 1)]
 
                         path_dict = {
                             "tag": tag,
@@ -696,11 +698,23 @@ class VdsaMicrotSNE:
                 df = pd.DataFrame(self.appended_file)
 
                 df["category"] = df["category"].str.strip().str.lower()
+
+                # cleaning inteerest and duration columns which are strings and has a character "DK" in it.
+                df = VdsaMicrotSNE.to_float(self, df=df, cols=["interest", "duration"])
+                df["interest"] = df["interest"].str.strip().str.replace("DK", "")
+                df["duration"] = df["duration"].str.strip().str.replace("DK", "")
+
+                df = VdsaMicrotSNE.to_float(
+                    self, df=df, cols=["interest", "duration", "purpose"]
+                )
+                df["interest"] = df["interest"].astype(float)
+                df["duration"] = df["duration"].astype(float)
+                df["purpose"] = df["purpose"].astype(str).str.replace(".0", "")
+
+                # cleaning source column categories
                 df["source"] = (
                     df["source"].str.strip().str.lower().str.replace(" ", "_")
                 )
-
-                # cleaning source column categories
 
                 conds = [
                     # co-operative banks
@@ -1022,11 +1036,41 @@ class VdsaMicrotSNE:
                 }
 
                 df["source"] = np.select(conds, opts, default=df["source"])
-                # df["source"] = df["source"].str.lower().str.replace(" ", "_")
+                df["source"] = df["source"].str.lower().str.replace(" ", "_")
 
-                df["source"] = df["source"].map(source_dict)
+                # df["source"] = df["source"].map(source_dict)
 
                 # print(df["source"].unique())
+
+                # cleaning purpose column
+
+                purpose_dict = {
+                    "1": "Agriculture",
+                    "2": "Purchase of implements",
+                    "3": "Purchase of livestock",
+                    "4": "Social functions",
+                    "5": "Consumption",
+                    "6": "Education",
+                    "7": "Medical",
+                    "8": " Business",
+                    "9": "Repay old debt",
+                    "10": "Major repairs",
+                    "11": "Purchase of land",
+                    "12": "Marriage",
+                    "13": " Drill well",
+                    "14": "Fisheries",
+                    "15": "Others",
+                    "nan": "Undefined",
+                }
+
+                df["purpose"] = df["purpose"].map(purpose_dict)
+                df["purpose"] = (
+                    df["purpose"].str.strip().str.lower().str.replace(" ", "_")
+                )
+                print(df["purpose"].unique())
+                print(df["purpose"].dtype)
+
+                # # #pivoting the data and doing necessary cleaning
 
                 # dropping duplicates
                 df = df.drop_duplicates(
@@ -1040,32 +1084,73 @@ class VdsaMicrotSNE:
                     ]
                 )
 
-                # # checking duplicates after long form
+                # creating a duplicate identifier to isolate funds from same hh from same source and for same purpose
+                df["dups"] = df.duplicated(
+                    subset=[
+                        "hh_id",
+                        "category",
+                        "source",
+                        "purpose"
+                        # "amount",
+                        # "duration",
+                        # "interest",
+                    ],
+                    keep=False,
+                )  # these dups have been manually verified
+
+                # subsetting the dups observation to create a blended rate and agg amount and duration
+                df_int = df[df["dups"] == True]
+                df = df[df["dups"] == False]
+                df_int["interest"] = df_int["amount"] * (df_int["interest"] / 100)
+
+                df_int = (
+                    df_int.groupby(["hh_id", "category", "source", "purpose"])
+                    .agg({"amount": "sum", "duration": "max", "interest": "sum"})
+                    .reset_index()
+                )
+
+                df_int["interest"] = (df_int["interest"] / df_int["amount"]) * 100
+
+                # appending both these datasets and dropping dups from df before append
+
+                df.drop("dups", axis=1, inplace=True)
+
+                df = pd.concat([df, df_int], axis=0)
+
                 # df["dups"] = df.duplicated(
                 #     subset=[
                 #         "hh_id",
                 #         "category",
                 #         "source",
-                #         "amount",
-                #         "duration",
-                #         "interest",
+                #         "purpose"
+                #         # "amount",
+                #         # "duration",
+                #         # "interest",
                 #     ],
                 #     keep=False,
                 # )  # these dups have been manually verified
 
-                # # #pivoting the data and doing necessary cleaning
-                df = df.reset_index().drop("index", axis=1)
-                df = df.reset_index()
+                # print(df['dups'].value_counts())
+
+                df["id"] = df["category"] + "_" + df["source"] + "_" + df["purpose"]
+                df.drop(["category", "source", "purpose"], axis=1, inplace=True)
+
+                df = df.melt(
+                    id_vars=["hh_id", "id"],
+                    value_vars=["amount", "duration", "interest"],
+                    var_name="tag",
+                    value_name="value",
+                )
+                df["id"] = df["id"] + "_" + df["tag"]
 
                 df = df.pivot(
-                    index=["index", "hh_id"],
-                    columns=["category", "source", "purpose"],
-                    values=["amount", "duration", "interest"],
-                )
-                # .reset_index()
+                    index=["hh_id"],
+                    columns="id",
+                    values="value",
+                ).reset_index()
                 #     .melt(id_vars="index", value_vars=[])
                 # )
-                print(df)
+
                 df.to_csv(f"{self.interim_path}/{tag}.csv", index=False)
 
         widen_vals()
@@ -1241,7 +1326,7 @@ class VdsaMicrotSNE:
 
         # unncecessary cols to be removed
         remove_cols = [
-            "mem_org_name_ot",  # these column sar eempty and hence removed for this block
+            "mem_org_name_ot",  # these columns are empty and hence removed for this block
             "os_purpose_ot",
             "work_own_farm",
             "ot_occp",
@@ -1478,7 +1563,7 @@ class VdsaMicrotSNE:
             export_file=False,
         )
 
-        def value_aggregator():
+        def string_clean():
             """This functions helps to aggregate the present value of farm equipments in the GES questionnaire"""
 
             if not self.interim_path.joinpath(f"{tag}.csv").exists():
@@ -1486,16 +1571,25 @@ class VdsaMicrotSNE:
 
                 df = VdsaMicrotSNE.to_float(self, df=df, cols=["present_val"])
 
-                df = df.groupby(["sur_yr", "hh_id"])["present_val"].sum().reset_index()
+                # cleaning item name column
+                df["item_name"] = df["item_name"].str.strip().str.lower()
+
+                # pd.Series(df["item_name"].value_counts()).to_csv(
+                #     f"{self.interim_path}/{tag}.csv", index=True
+                # )
+
+                df["item_name"] = df["item_name"].replace()
+
+                print(df["item_name"].unique())
 
                 df.rename(
                     columns={"present_val": "farm_equipment_present_value"},
                     inplace=True,
                 )
 
-                df.to_csv(f"{self.interim_path}/{tag}.csv", index=False)
+                # df.to_csv(f"{self.interim_path}/{tag}.csv", index=False)
 
-        value_aggregator()
+        string_clean()
 
     def cons_durab(self):
         """
@@ -2348,7 +2442,9 @@ class VdsaMicrotSNE:
         # unncecessary cols to be removed
         remove_cols = ["is_prog_active"]
 
-        VdsaMicrotSNE.path_values_create(self, region_folder_position=6)
+        VdsaMicrotSNE.path_values_create(
+            self, region_folder_position=8
+        )  # region folder position = 6 for windows and 8 for linux
 
         interim_appended_file_path = self.interim_path.joinpath(f"{tag}.csv")
 

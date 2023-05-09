@@ -10,6 +10,6 @@ docs/**/*.*
 
 #Ignoring the pycache, venv and vscode cache
 .vscode
-venv
+.venv
 **/__pycache__
 

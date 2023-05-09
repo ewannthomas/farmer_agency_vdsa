@@ -1,16 +1,16 @@
 from raw_data_compile import VdsaMicrotSNE
 
-#creating tSNE interim data
-compile_data=VdsaMicrotSNE()
-compile_data.path_values_create(region_folder_position=6)
+# creating tSNE interim data
+compile_data = VdsaMicrotSNE()
+compile_data.path_values_create(region_folder_position=8)
 compile_data.gen_info_cleaner()
 compile_data.coping_mech_cleaner()
-compile_data.assests_liabs()
+compile_data.assests_liabs()  # done
 # compile_data.plotlist()
-# # compile_data.family_comp()
+compile_data.family_comp()
 # compile_data.landholding()
 # compile_data.livestock()
-# compile_data.farm_equip()
+compile_data.farm_equip()
 # compile_data.cons_durab()
 # compile_data.stock_inv()
 # compile_data.gender_decs_making()
@@ -29,4 +29,3 @@ compile_data.assests_liabs()
 # compile_data.sale_pur()
 # compile_data.govt_dev_prog()
 # compile_data.building()
-
