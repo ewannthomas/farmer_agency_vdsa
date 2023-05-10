@@ -1,6 +1,7 @@
 import pandas as pd
 from pathlib import Path
 import numpy as np
+import json
 
 
 class VdsaMicrotSNE:
@@ -215,6 +216,35 @@ class VdsaMicrotSNE:
 
         return df
 
+    def widen_frame(
+        self,
+        tag: str,
+        df: function | pd.DataFrame,
+        index_cols: list,
+        wide_cols: list,
+        agg_dict: dict,
+    ):
+        """
+        This function converts the entire dataframe into a wider version of itself and writes it to the tSNE folder in the interim data directory. It conducts the Pandas Pivot fucntion to achieve the same, after ensuring the absence of duplicates in the dataframe.
+
+        Parameters:
+        self: Inherits all the self variables.
+
+        tag: A string value enabling in identifying the exact location of the file to be wrangled using the path_values_create method defined under the VdsaMicrotSNE class.
+
+        df: A pandas dataframe to be widened. The input can be a fucntion rendering the desired dataframe or a dataframe.
+
+        index_cols: A list of column names which will be used as index of the dataframe to perform duplication check, groupby and widening.
+
+        wide_cols: A list of column names which will be, strictly, converted to float and reduced to statisitcs mentioned in the agg_dict based on the index_cols groups.
+
+        agg_dict: A dictionary which defines the summaryu statistic that should be created for each col in the wide_cols list while performing the groupby operation.
+        """
+
+        if not self.interim_path.joinpath(f"{tag}.csv").exists():
+            # The first operation is ensure that no duplicates exist across all columns of the original dataset.
+            df["dups"] = df.duplicated(keep=False)
+
     def data_wrangler(
         self,
         tag: str,
@@ -228,7 +258,7 @@ class VdsaMicrotSNE:
         Parameters:
         self: Inherits all the path structures defined in __init__.
 
-        tag: A string value specifying the exact location of the file to be wrangled.
+        tag: A string value enabling in identifying the exact location of the file to be wrangled using the path_values_create method defined under the VdsaMicrotSNE class.
 
         rename_east: A dictionary which will be used for renamimg anmd standardizing the column names in the files pertaining to East India.
                         Key: Old column name
@@ -1552,7 +1582,7 @@ class VdsaMicrotSNE:
         sat_cols = {"vds_id": "hh_id", "item_no": "item_qty", "item_val": "present_val"}
 
         # unncecessary cols to be removed
-        remove_cols = []
+        remove_cols = ["remarks", "remarks_d"]
 
         VdsaMicrotSNE.data_wrangler(
             self,
@@ -1564,7 +1594,7 @@ class VdsaMicrotSNE:
         )
 
         def string_clean():
-            """This functions helps to aggregate the present value of farm equipments in the GES questionnaire"""
+            """This functions helps to clean strings columns of farm equipments in the GES questionnaire"""
 
             if not self.interim_path.joinpath(f"{tag}.csv").exists():
                 df = pd.DataFrame(self.appended_file)
@@ -1574,22 +1604,69 @@ class VdsaMicrotSNE:
                 # cleaning item name column
                 df["item_name"] = df["item_name"].str.strip().str.lower()
 
-                # pd.Series(df["item_name"].value_counts()).to_csv(
-                #     f"{self.interim_path}/{tag}.csv", index=True
-                # )
+                farm_equip_map = "./src/tsne/farm_equip_map.json"
 
-                df["item_name"] = df["item_name"].replace()
+                with open(farm_equip_map, "r") as infile:
+                    all_names = dict(json.load(infile))
 
-                print(df["item_name"].unique())
+                df["item_name"] = df["item_name"].map(all_names)
 
+                df["item_name"] = df["item_name"].str.replace(" ", "_").str.lower()
+                df["item_name"] = (
+                    df["item_name"].str.replace("(", "").str.replace(")", "")
+                )
+
+                # cleaning the present value column
                 df.rename(
                     columns={"present_val": "farm_equipment_present_value"},
                     inplace=True,
                 )
 
-                # df.to_csv(f"{self.interim_path}/{tag}.csv", index=False)
+                # converting cols to floats
 
-        string_clean()
+                df = VdsaMicrotSNE.to_float(
+                    self,
+                    df=df,
+                    cols=["item_qty", "horse_power", "farm_equipment_present_value"],
+                )
+
+                return df
+
+        def widen_cols():
+            """This functions helps to widen the columns of farm equipments in the GES questionnaire"""
+
+            if not self.interim_path.joinpath(f"{tag}.csv").exists():
+                df = string_clean()
+
+                df = (
+                    df.groupby(
+                        [
+                            "hh_id",
+                            "item_name",
+                        ]
+                    )
+                    .agg(
+                        {
+                            "item_qty": "sum",
+                            "horse_power": "max",
+                            "farm_equipment_present_value": "sum",
+                        }
+                    )
+                    .reset_index()
+                )
+
+                # # creating a duplicate identifier
+                df["dups"] = df.duplicated(
+                    subset=[
+                        "hh_id",
+                        "item_name",
+                    ],
+                    keep=False,
+                )  # these dups have been manually verified
+
+                df.to_csv(f"{self.interim_path}/{tag}.csv", index=False)
+
+        widen_cols()
 
     def cons_durab(self):
         """
