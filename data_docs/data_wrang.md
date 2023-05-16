@@ -2,22 +2,188 @@
 
 The Village Dymanics Situation Assessment is a yearly panel dataset collected across 9 states in India between 2010 and 2014.
 
-To replicate the results we generated, please clone the `farmers_agency_vdsa` git repository from `https://shorturl.at/rV178`. Post repository cloning, one may dowanload the necessary data from the VDSA data portal at `https://vdsa.icrisat.org/vdsa-database.aspx`
+To replicate the results we generated, please clone the [farmer_agency_vdsa](https://shorturl.at/rV178) git repository. Post repository cloning, one may dowanload the necessary data from the [VDSA data portal](https://vdsa.icrisat.org/vdsa-database.aspx).
+
+General Facts:
+
+- The column `hh_id`, across all data products generated, is a combination of the household identifier and survey year. Entries in this column uniquely identifies the data atg household year level resolution.
 
 ## Panel Data Regression
 
 ## tSNE and Deep Learning
 
-Basic wrangling exercises includ- Ensuring presence uniform column names for compatible datasets stemming from east-india and sat-india folders.
+Basic wrangling exercises include - Ensuring presence uniform column names for compatible datasets stemming from east-india and sat-india folders.
 
 - Removing columns with all the entires as missing values.
 
 ### General Endowments Schedule
 
-#### Debt and Credit Schedule (VDSA – P)
+#### Household Member Schedule (VDSA – C)
 
-- class: `VdsaMicrotSNE`
-- method: `assests_liabs`
+The household member schdeule enquires about the dempohgraphic, socio-economic and health features of the members of each agricultural household. The schedule covers, questions on education, occupation, BMR, migration status etc.
+
+After exercising the basic wrangling processes, we checked for duplicates across all columns and removed rows which were exact replica of another. Adding the snapshot of duplicates and their corresponding twins:
+
+| sur_yr | hh_id      | sl_no | ch_stat | ch_stat_ot | relation | relation_ot | gender | age | old_mem_id | pre_mem_id | spouse_m_id | spouse_f_id | child_m_id | child_f_id | mari_stat | mari_stat_ot | marriage_yr | edu_level | edu_level_ot | yrs_edu | yr_edu_ter | rea_stop_edu | rea_stop_edu_ot | main_occp | main_occp_ot | subs_occp | subs_occp_ot | deg_ab | liv_wf_os | os_place  | os_dist | freq_visits | os_purpose | mem_org_name | height | weight | arm_circum | dups |
+| ------ | ---------- | ----- | ------- | ---------- | -------- | ----------- | ------ | --- | ---------- | ---------- | ----------- | ----------- | ---------- | ---------- | --------- | ------------ | ----------- | --------- | ------------ | ------- | ---------- | ------------ | --------------- | --------- | ------------ | --------- | ------------ | ------ | --------- | --------- | ------- | ----------- | ---------- | ------------ | ------ | ------ | ---------- | ---- |
+| 2012   | IOR12C0038 | 6     | 4       |            | 2        |             | M      | 64  | 6          | 6          |             | 7           |            |            | 1         |              | 1976        | 1         |              | 3       | 1956       | 1            |                 | 11        |              |           |              | 6      | Family    |           |         |             |            |              | 104    | 14.3   |            | TRUE |
+| 2012   | IOR12C0038 | 6     | 4       |            | 2        |             | M      | 64  | 6          | 6          |             | 7           |            |            | 1         |              | 1976        | 1         |              | 3       | 1956       | 1            |                 | 11        |              |           |              | 6      | Family    |           |         |             |            |              | 104    | 14.3   |            | TRUE |
+| 2014   | IBH14D0058 | 9     | 9       |            |          |             |        |     |            |            |             |             |            |            |           |              |             |           |              |         |            |              |                 |           |              |           |              |        |           |           |         |             |            |              |        |        |            | TRUE |
+| 2014   | IBH14D0058 | 10    | 9       |            |          |             |        |     |            |            |             |             |            |            |           |              |             |           |              |         |            |              |                 |           |              |           |              |        |           |           |         |             |            |              |        |        |            | TRUE |
+| 2014   | IBH14D0058 | 9     | 9       |            |          |             |        |     |            |            |             |             |            |            |           |              |             |           |              |         |            |              |                 |           |              |           |              |        |           |           |         |             |            |              |        |        |            | TRUE |
+| 2014   | IBH14D0058 | 10    | 9       |            |          |             |        |     |            |            |             |             |            |            |           |              |             |           |              |         |            |              |                 |           |              |           |              |        |           |           |         |             |            |              |        |        |            | TRUE |
+| 2014   | IBH14D0090 | 7     | 0       |            | 9        |             | M      | 7   | 503        | 503        |             |             | 500        | 501        | 2         |              |             | 1         |              | 2       |            |              |                 | 9         |              |           |              | 5      | Outside   | FARIDABAD | 1500    | 5           | Occasion   |              |        |        |            | TRUE |
+| 2014   | IBH14D0090 | 7     | 0       |            | 9        |             | M      | 7   | 503        | 503        |             |             | 500        | 501        | 2         |              |             | 1         |              | 2       |            |              |                 | 9         |              |           |              | 5      | Outside   | FARIDABAD | 1500    | 5           | Occasion   |              |        |        |            | TRUE |
+
+Later, we have identified that in this dataframe, the columns `hh_id`, `sl_no` and `ch_stat` should uniquely identify the rows where the second \(`sl_no`\) identifies the household member and third identifies any chnages in housheold status of the same member defined by the second. On the basis of the above columns we were able to identify the following duplicate entries in the data:
+| sur_yr | hh_id | sl_no | ch_stat | ch_stat_ot | relation | relation_ot | gender | age | old_mem_id | pre_mem_id | spouse_m_id | spouse_f_id | child_m_id | child_f_id | mari_stat | mari_stat_ot | marriage_yr | edu_level | edu_level_ot | yrs_edu | yr_edu_ter | rea_stop_edu | rea_stop_edu_ot | main_occp | main_occp_ot | subs_occp | subs_occp_ot | deg_ab | liv_wf_os | os_place | os_dist | freq_visits | os_purpose | mem_org_name | height | weight | arm_circum | dups |
+|--------|------------|-------|---------|------------|----------|----------------------|--------|-----|------------|------------|-------------|-------------|------------|------------|-----------|--------------|-------------|-----------|----------------------|---------|------------|--------------|----------------------|-----------|----------------------|-----------|----------------------|--------|-----------|-----------------|---------|-------------|----------------------|--------------------------------|--------|--------|------------|------|
+| 2012 | IBH12C0046 | 5 | 0 | | 10 | | F | 2 | 5 | 5 | | | 3 | 4 | 2 | | | 0 | | 0 | | | | 11 | | | | 6 | Family | | | | | | | | | TRUE |
+| 2012 | IBH12C0046 | 5 | 0 | | 10 | | F | 3 | 5 | 5 | | | 3 | 4 | 2 | | | 0 | | 0 | | | | 11 | | | | 6 | Family | | | | | | | | | TRUE |
+| 2014 | IBH14C0057 | 5 | 1 | | | | F | | | | | | 1 | 2 | 2 | | | | | | | | | | | | | | | | | | | | | | | TRUE |
+| 2014 | IBH14C0057 | 5 | 1 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | TRUE |
+| 2014 | IBH14D0010 | 3 | 1 | | | | F | | | | | | | 2 | 2 | | | | | | | | | | | | | | | | | | | | | | | TRUE |
+| 2014 | IBH14D0010 | 3 | 1 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | TRUE |
+| 2011 | IJH11C0004 | 1 | 0 | | 4 | | M | 46 | | 1 | | 2 | | | 1 | | 1990 | 0 | | 0 | | | | 1 | | 3 | | 1 | Family | | | | | | | | | TRUE |
+| 2011 | IJH11C0004 | 1 | 0 | | 1 | | F | 41 | 2 | 2 | | | | | 3 | | 1987 | 0 | | 0 | | | | 3 | | 10 | | 1 | Family | | | | | | 143.8 | 39.8 | 24 | TRUE |
+| 2012 | IOR12C0042 | 3 | 0 | | 10 | | F | 15 | 3 | 3 | | | | 2 | 2 | | | 3 | | 10 | 2012 | 1 | | 10 | | | | 3 | Family | | | | | | 156 | 50.8 | 23.8 | TRUE |
+| 2013 | IOR12C0042 | 3 | 0 | | 10 | | F | 16 | 3 | 3 | | | | 2 | 2 | | | 3 | | 10 | 2012 | 1 | | 10 | | | | 3 | Family | | | | | | 156 | 50.8 | 23.8 | TRUE |
+| 2012 | IOR13B0202 | 3 | 0 | | 5 | | M | 1 | 3 | 3 | | | 1 | 2 | 2 | | | 0 | | 0 | | | | 11 | | | | 6 | Family | | | | | | | | | TRUE |
+| 2013 | IOR13B0202 | 3 | 0 | | 5 | | M | 2 | 3 | 3 | | | 1 | 2 | 2 | | | 0 | | 0 | | | | 11 | | | | 6 | Family | | | | | | | | | TRUE |
+
+It is observed that households `IBH14C0057` and `IBH14D0010` have information repeating but in the second row, majoprity of the columns are missing. Hence retaining row 1 for both the households. For households, `IBH12C0046`,`IOR12C0042` and `IOR13B0202` one may notice two things, all information is similar except for age, where age in row is incremented by 1 in row 2. Assuming that this is a data entry issue, we will be retaining the latest age level information. All these households were inspected to see if the entries were indeed duplicates or an error to the enumerator in filling same `sl_no` value to two seperate individuals in the household. An enquiry in the same lines brings us to our last and final duplicate entry in household `IJH11C0004`. In this household `sl_no` value 1 was given to two seperate individuals, a male and female member of the same family. They exhibit different values in different columns. Hence the male member was recoded as `sl_no` 4.
+
+The column `gender` was recoded to a dummy variable where all male entries were recoded to 0 and female entires to 1. The column was later renamed to `female`. Similarly the column `liv_wit_oth` has been recoded to make the string `family` to say `with_family`.
+
+#### Landholding information (VDSA – D)
+
+The landholding information schedule of the GES questionnaire enquires about information on who owns the land and unique identifiers for the plots. It identifies the various sources from whcih each plot is irrigated, soil depth, soil type, revenue from the land etc. The schdeule provides very exhaustive information on the soil conditions and land type of the plot. The identifiers used, `plot_code` is equivalent to the identifier used in the Plotlist and Cropping Patterns questionnaire of VDSA. So, the values are comparable.
+
+The duplicates were checked on columns `hh_id`, `sl_no`, and `plot_code`. There were no duplicates.
+Later, all columns which had numeric values were converted to float data type. Teh column `plot_name` was removed because `plot_code` enabled identification of the rows uniquely. Columns on ownership status, change of ownership status, source of irrigation, soil type, fertility and degradation, bunding and bunding type were reassigned to their corrsponding string based vategory values as in the questionnaire. Columns which housed values beyond any defined category of any column was enetered as col_name_others. Such other column which had string values were removed fromthe datastet. e.g.: bund_type_others
+
+#### Animal inventory of the Household (VDSA – E)
+
+The animal inventory schedule of the GES questionnaire collects details about the kind, count, mode of acquisition and present value of livestock inventory owned by the household.
+
+After exercising the basic wrangling measures, we inspected for duplicates across all columns in the dataset and found 2 entries,
+| sur_yr | hh_id | livestock_type | livestock_count | no_of_rea | no_pur | no_rec_gift | no_sha_rea | livestock_present_value | remarks | dups |
+|--------|------------|----------------|-----------------|-----------|--------|-------------|------------|-------------------------|---------|------|
+| 2011 | IJH11C0037 | goats | 2 | 2 | | | | 1200 | | TRUE |
+| 2011 | IJH11C0037 | goats | 2 | 2 | | | | 1200 | | TRUE |
+
+One entry was removed to ensure unique identification of dataframe. Necessary column name renaming was done to make better sense of the column names.
+
+The column `livestock_type` holding categories of livestock types had rogue string values which were recoded to reflect the categories mentioned in the questionnaire. Post mapping of categorical string values, the dataframe was grouped on the basis of household and livestock type columns \(`hh_id, livestock_type`\) and a sum of the subsequent count columns of livestock were obtained. Prior to grouping and summing all columns with numeric values `present_val, on_farm_reared_count, purchased_count, received_gift_count, shared_rearing_count` were necessarily converted to float data type.
+
+#### Farm implements owned by the household (VDSA – F)
+
+The farm implements block of the GES questionnaiore is dedicated towards understanding the quantity, scale and use of various farm implements used by the household in its agricultural activities.
+
+The basic wrangling measures were followed by recoding of the `item_name` column which lists the name of the farm equipment owned by the household. The following are the major categories of farm equipments:
+
+- Desi plough
+- Modern plough
+- Blade harrow
+- Blade hoe
+- Seed drill
+- Sprinkler set
+- Drip irrigation
+- Manual sprayers dusters
+- Power sprayer duster
+- Chaff cutter
+- Sugarcane crusher
+- Rice huller
+- Flour mill
+- Power-tiller
+- Tractor
+- Submersible pump
+- Bullock cart
+- Truck
+- Other minor implements
+- Other heavy implements
+- Mechanical thresher
+- Electric motor
+- Diesel pump
+- Pipeline in feet
+- Combined harvester cum thresher
+- Implements used for caste occupation
+- Implements used for handy- craft
+- Groundnut opener
+- Bore-well or Open-well
+- Others
+
+However, the data contained around 237 rogue categories whcih varied widely in terms of string, spellings etc. All such rogue values were carefully checked and mapped to one of the values in the above list. The category mapping was followed by widening of the dataset. There are multiple households which own many number of the same equipment, some fully owned by the household and some shared at a percent of stake, as reported in the `prct_share` column. So these multiple number of the equipments at different stake act as duplicates of eachother. To resolve this we can make use of the `farm_equipment_present_value` column which, as per the documnetation, is the reported value of the implement as per the stake in the ownership. So to widen the dataset, the `prct_share` column can be ignored and the same equipments can be aggregated in terms of the number and its present value. For the column, `horse_power` recorded only for major machinery like tractor, thresher, and pumpset, we take the maximum value within the `item_name` category.
+
+#### Building & consumer durables (VDSA – G)
+
+The Building and consumer durables schedule under the GES questionnaire collects information on the building type owned by the household and details about the facilities available in the house. The facilities included the house involves the durables owned by the household. Data cleaning pertaining to this schedule has been, for ease of work, split into:
+
+- Consumer Durables: Deals specifically with the count, present value of the durables owned by the household.
+- Buildings: Deals specifically with the details of the house owned, the type of house and amenities built into the house.
+
+##### Consumer Durables
+
+The basic wrangling exercises were implemented and the column names were renamed for clarity.
+
+While checking for duplicate entires in the dataset by considering all columns in the dataset, we observed that 1740 values were tagged as duplicates. A sub sample of 50 observations from this duplicate sare presented here for reference:
+
+| sur_yr | hh_id      | item_name        | item_qty | present_value_durable | who_owns_durable | dups |
+| ------ | ---------- | ---------------- | -------- | --------------------- | ---------------- | ---- |
+| 2014   | IAP14C0059 | Furniture        |          | 2400                  |                  | TRUE |
+| 2014   | IAP14C0059 | Furniture        |          | 2400                  |                  | TRUE |
+| 2012   | IOR12A0001 | Cattle Shed      | 1        | 3000                  | 1                | TRUE |
+| 2012   | IOR12A0001 | Cooking Utensils |          | 6000                  |                  | TRUE |
+| 2012   | IOR12A0001 | Furniture        |          | 23000                 |                  | TRUE |
+| 2012   | IOR12A0001 | Bicycle          | 1        | 1500                  |                  | TRUE |
+| 2012   | IOR12A0001 | Cattle Shed      | 1        | 3000                  | 1                | TRUE |
+| 2012   | IOR12A0001 | Cooking Utensils |          | 6000                  |                  | TRUE |
+| 2012   | IOR12A0001 | Furniture        |          | 23000                 |                  | TRUE |
+| 2012   | IOR12A0001 | Bicycle          | 1        | 1500                  |                  | TRUE |
+| 2012   | IOR12A0002 | Cattle Shed      | 1        | 500                   | 1                | TRUE |
+| 2012   | IOR12A0002 | Cooking Utensils |          | 1000                  |                  | TRUE |
+| 2012   | IOR12A0002 | Cattle Shed      | 1        | 500                   | 1                | TRUE |
+| 2012   | IOR12A0002 | Cooking Utensils |          | 1000                  |                  | TRUE |
+| 2012   | IOR12A0003 | Cattle Shed      | 1        | 5000                  | 1                | TRUE |
+| 2012   | IOR12A0003 | Television       | 1        | 3000                  |                  | TRUE |
+| 2012   | IOR12A0003 | Cooking Utensils |          | 7000                  |                  | TRUE |
+| 2012   | IOR12A0003 | Furniture        |          | 300                   |                  | TRUE |
+| 2012   | IOR12A0003 | Fan              | 1        | 1000                  |                  | TRUE |
+| 2012   | IOR12A0003 | Bicycle          | 1        | 2000                  |                  | TRUE |
+| 2012   | IOR12A0003 | Cattle Shed      | 1        | 5000                  | 1                | TRUE |
+| 2012   | IOR12A0003 | Television       | 1        | 3000                  |                  | TRUE |
+| 2012   | IOR12A0003 | Cooking Utensils |          | 7000                  |                  | TRUE |
+| 2012   | IOR12A0003 | Furniture        |          | 300                   |                  | TRUE |
+| 2012   | IOR12A0003 | Fan              | 1        | 1000                  |                  | TRUE |
+| 2012   | IOR12A0003 | Bicycle          | 1        | 2000                  |                  | TRUE |
+| 2012   | IOR12A0004 | Cooking Utensils |          | 3000                  |                  | TRUE |
+| 2012   | IOR12A0004 | Furniture        |          | 15000                 |                  | TRUE |
+| 2012   | IOR12A0004 | Bicycle          | 1        | 1500                  |                  | TRUE |
+| 2012   | IOR12A0004 | Cooking Utensils |          | 3000                  |                  | TRUE |
+| 2012   | IOR12A0004 | Furniture        |          | 15000                 |                  | TRUE |
+| 2012   | IOR12A0004 | Bicycle          | 1        | 1500                  |                  | TRUE |
+| 2012   | IOR12A0005 | Cooking Utensils |          | 500                   |                  | TRUE |
+| 2012   | IOR12A0005 | Furniture        |          | 2000                  |                  | TRUE |
+| 2012   | IOR12A0005 | Cooking Utensils |          | 500                   |                  | TRUE |
+| 2012   | IOR12A0005 | Furniture        |          | 2000                  |                  | TRUE |
+| 2012   | IOR12A0006 | Cooking Utensils |          | 1000                  |                  | TRUE |
+| 2012   | IOR12A0006 | Furniture        |          | 4500                  |                  | TRUE |
+| 2012   | IOR12A0006 | Bicycle          | 1        | 1500                  |                  | TRUE |
+| 2012   | IOR12A0006 | Cooking Utensils |          | 1000                  |                  | TRUE |
+| 2012   | IOR12A0006 | Furniture        |          | 4500                  |                  | TRUE |
+| 2012   | IOR12A0006 | Bicycle          | 1        | 1500                  |                  | TRUE |
+| 2012   | IOR12A0007 | Cooking Utensils |          | 1300                  |                  | TRUE |
+| 2012   | IOR12A0007 | Furniture        |          | 600                   |                  | TRUE |
+| 2012   | IOR12A0007 | Cooking Utensils |          | 1300                  |                  | TRUE |
+| 2012   | IOR12A0007 | Furniture        |          | 600                   |                  | TRUE |
+| 2012   | IOR12A0008 | Cattle Shed      | 1        | 2000                  | 1                | TRUE |
+| 2012   | IOR12A0008 | Cooking Utensils |          | 3000                  |                  | TRUE |
+| 2012   | IOR12A0008 | `Furniture       |          | 6000                  |                  | TRUE |
+| 2012   | IOR12A0008 | Watches          | 1        | 100                   |                  | TRUE |
+
+After inspecting multiple values amongst the duplicate rows, we tend to bele
+
+#### Debt and Credit Schedule (VDSA – P)
 
 After performing the basic wrangling, the categoies of the `source` column has been identified to be 176. These rogue categories have been recoded into the categories as per the questionnaire. They ar- Co-operative banks
 
@@ -38,47 +204,184 @@ Similarly the `purpose` column was numeric. We have extracted the corresponding 
 
 After mapping the categories, we identified certain cases where the same household was taking as loan or saving different amounts from the same source for the same purpose. There were 555 such entries in the data and they were grouped at a household, source and purpose level. Such grouped cases were aggregated (intra group) after estimating a blended interest for the respective amounts. Regarding the duration of such entries, the maximum duration, within group, of saving or loan among such entires were extrapolated.
 
-#### Farm implements owned by the household (VDSA – F)
+### Plot List and Cropping Pattern
 
-- class: `VdsaMicrotSNE`
-- method: `farm_equip`
+The plot list and cropping pattern questionnaire collects information on the pieces of land owned, shared, leased in or out and mortgaged in and out by the agriculture households for a 5 years. It enquires about the crops cultivated in each piece of land, the total size of the land, the area of land which is irrigated and the any amount which is received or paid as rent for the land by the household.
 
-The basic wrangling measures were followed by recoding of the `item_name` column which lists the name of the farm equipment owned by the household. The following were the equipments listed by the questionaire:
+The Plotlist dataset had issues with the column `hh_id`. This was resolved by isolating the household identifier from the existing identifier column. Strings columns, `ownership_status_plotlist` and `season` was cleaned to reflect categories mentioned in the questionnaire.
 
-- Desi plough
-- Modern plough
-- Blade harrow
-- Blade hoe
-- Seed drill
-- Sprinkler set
-- Drip irrigation
-- Manual sprayers dusters
-- Power sprayer duster
-- Chaff cutter
-- Sugarcane crusher
-- Rice huller
-- Flour mill
-- Power-tiller
-- Tractor
-- Submersible pump 1
-- Submersible pump 2
-- Submersible pump 3
-- Bullock cart
-- Truck
-- Other minor implements
-- Mechanical thresher
-- Electric motor 1
-- Electric motor 2
-- Electric motor 3
-- Diesel pump set 1
-- Diesel pump set 2
-- Diesel pump set 3
-- Pipeline in feet
-- Combined harvester cum thresher
-- Implements used for caste occupation
-- Implements used for handy- craft
-- Groundnut opener
-- Bore-well or Open-well
-- Others
+While dealing with duplicate entries in the plotlist dataset, the following steps were follwoed after carefully analysing the data and confirming findings via discreet manual inspection:
 
-However, the data contained around 237 rogue categories whcih varied widely in terms of string, spellings etc. All such rogue values were carefully checked and mapped to one of the values in the above list. The category mapping was followed by widening of the dataset. There are multiple households which own many number of the same equipment, some fully owned by the household and some shared at a percent of stake, as reported in the `prct_share` column. So these multiple number of the equipments at different stake act as duplicates of eachother. To resolve this we can make use of the `farm_equipment_present_value` column which, as per the documnetation, is the reported value of the implement as per the stake in the ownership. So to widen the dataset, the `prct_share` column can be ignored and the same equipments can be aggregated in terms of the number and its present value. For the column, `horse_power` recorded only for major machinery like tractor, thresher, and pumpset, we take the maximum value within the `item_name` category.
+- The data had 43 observations which were exact replicas of another observation. These were identified using `duplicated` function in Python package called Pandas, by running it across all the columns in the dataset. These 43 duplicate observations were removed.
+
+- Next we used the same function to identify using a subset of index columns: `hh_id, plot_name, plot_code, sub_plot_code, ownership_status_plotlist, season, crop_1, crop_2, crop_3, crop_4, crop_5`. We identified 30 observations which have duplicates. Out of these 30 observations, the following households had duplicates where the the value in the `plot_rent_received_paid` column was missing.
+  | Plot code | Plot sub code | household ID |
+  |---|---|---------|
+  | I | | IBH12B0047 |
+  | D | D | IBH14A0031 |
+  | E | E | IBH14A0031 |
+  | E | E | IBH14A0033 |
+  | H | H | IBH14A0033 |
+  | G | G | IBH14A0033 |
+  | D | D | IBH14A0034 |
+  | E | E | IBH14A0034 |
+  | E | E | IBH14A0040 |
+  | I | I | IBH14A0040 |
+  | H | H | IBH14A0044 |
+  | C | C | IBH14A0047 |
+  | G | G | IBH14A0050 |
+  | J | J | IBH14A0052 |
+  | K | K | IBH14A0052 |
+  | G | G | IBH14A0054 |
+  | Q | Q | IBH14A0055 |
+  | R | R | IBH14A0055 |
+  | S | S | IBH14A0055 |
+  | J | J | IBH14A0057 |
+  | H | H | IBH14A0080 |
+  | I | I | IBH14A0080 |
+  | C | C | IBH14C0041 |
+
+So removing the duplicates for these sub-plots. Post that the following were the duplicate entries:
+
+| sur_yr | plot_name       | plot_code | plot_area | ownership_status_plotlist | sub_plot_code | crop_area | irri_area | season            | crop_1        | crop_2 | crop_3 | crop_4 | crop_5 | plot_rent_received_paid | hh_id      | dups |
+| ------ | --------------- | --------- | --------- | ------------------------- | ------------- | --------- | --------- | ----------------- | ------------- | ------ | ------ | ------ | ------ | ----------------------- | ---------- | ---- |
+| 2010   | ERIKILODI CHENU | F         | 2.5       | Leased-in on fixed rent   | FA            | 1.25      | 0         | Rainy (Kharif)    | PIGEONPEA     |        |        |        |        | 1334                    | IAP10D0057 | TRUE |
+| 2010   | ERIKILODI CHENU | F         | 2.5       | Leased-in on fixed rent   | FA            | 1.25      | 0         | Rainy (Kharif)    | PIGEONPEA     |        |        |        |        | 1000                    | IAP10D0057 | TRUE |
+| 2010   | BAS WALA        | A         | 0.75      | Own land                  |               | 0.03      | 0.75      | Rainy (Kharif)    | Paddy         |        |        |        |        |                         | IBH10C0040 | TRUE |
+| 2010   | BAS WALA        | A         | 0.75      | Own land                  |               | 0.15      | 0.75      | Rainy (Kharif)    | Paddy         |        |        |        |        |                         | IBH10C0040 | TRUE |
+| 2012   | GAMBHIR BABA    | H         | 0.07      | Own land                  |               | 0.07      |           | Perennial         | Teak (Sagwan) |        |        |        |        |                         | IBH12A0033 | TRUE |
+| 2012   | GAMBHIR BABA    | H         | 0.07      | Own land                  |               | 0.07      | 0.07      | Perennial         | Teak (Sagwan) |        |        |        |        |                         | IBH12A0033 | TRUE |
+| 2012   | BANS TAR        | E         | 0.05      | Own land                  |               | 0.05      |           | Perennial         | Bamboo        |        |        |        |        |                         | IBH12A0034 | TRUE |
+| 2012   | BANS TAR        | E         | 0.05      | Own land                  |               |           |           | Perennial         | Bamboo        |        |        |        |        |                         | IBH12A0034 | TRUE |
+| 2014   | BENGA BADH      | H         | 0.65      | Leased-out on crop share  | H             |           |           | Post rainy (Rabi) |               |        |        |        |        | 2600                    | IBH14D0056 | TRUE |
+| 2014   | BENGA BADH      | H         | 0.65      | Leased-out on crop share  | H             |           |           | Post rainy (Rabi) |               |        |        |        |        | 2650                    | IBH14D0056 | TRUE |
+| 2013   | RASTAVALU       | C         | 0.5       | Own land                  | C             | 0.5       | 0         | Perennial         | TEAK          |        |        |        |        |                         | IGJ13B0046 | TRUE |
+| 2013   | RASTAVALU       | C         | 0.5       | Own land                  | C             | 0.5       | 0.5       | Perennial         | TEAK          |        |        |        |        |                         | IGJ13B0046 | TRUE |
+| 2011   | SARNA DON       | L         | 0.1       | Mortgaged-in              | L             |           |           | Post rainy (Rabi) | Fallow        |        |        |        |        |                         | IJH11D0044 | TRUE |
+| 2011   | SARNA DON       | L         | 0.1       | Mortgaged-in              | L             | 0.1       |           | Post rainy (Rabi) | Fallow        |        |        |        |        |                         | IJH11D0044 | TRUE |
+
+From the above data subset, it's observed that households `IBH12A0033`, `IBH12A0034`, `IGJ13B0046` and `IJH11D0044` have duplicates but certain missing values in columns `crop_area` and `plot_area` distinguishes them. We have decided to retain rows which has minimall missing observations and remove the other.
+
+The first filter removes rows where `hh_id` is equal to `"IBH12A0033"`, `plot_code` is equal to `"H"`, and `irri_area` is NaN.
+
+The second filter removes rows where `hh_id` is equal to `"IBH12A0034"`, `plot_code` is equal to `"E"`, and `crop_area` is NaN.
+
+The third filter removes rows where `hh_id` is equal to `"IGJ13B0046"`, `plot_code` is equal to `"C"`, and `irri_area` is equal to `0`.
+
+The fourth filter removes rows where `hh_id` is equal to `"IJH11D0044"`, `plot_code` is equal to `"L"`, and `crop_area` is NaN.
+
+The remaining cases belong to households `IAP10D0057`, `IBH10C0040`, and `IBH14D0056`. In `IBH10C0040` both the rows are eaxct duplicates except for the `crop_area` which displays two different values. This could be information regarding two crops and hence, the same same will be replaced by the sum of the two values, which is 0.18 (0.03+0.15).
+However for the other two households, we have different values distinguishing the prospective duplicates in the `plot_rent_received_paid` column. We suspect that the rent being different is sussgestive of income from crop cultivation and hence these values would be replaced with the sum of existing values. That is:
+
+- For household `IAP10D0057`, rent would be 1334 + 1000 = 2334
+- For household `IBH14D0056`, rent would be 2600 + 2650 = 5250
+
+Post all the above duplicates-related data cleaning process, the following data snapshot, with 6 entries, exists and one is the exact replica of the other. Hence, they will be removed.
+
+| sur_yr | plot_name       | plot_code | plot_area   | ownership_status_plotlist | sub_plot_code | crop_area | irri_area | season            | crop_1    | crop_2 | crop_3 | crop_4 | crop_5 | plot_rent_received_paid | hh_id      | dups |
+| ------ | --------------- | --------- | ----------- | ------------------------- | ------------- | --------- | --------- | ----------------- | --------- | ------ | ------ | ------ | ------ | ----------------------- | ---------- | ---- |
+| 2010   | ERIKILODI CHENU | F         | 2.5         | Leased-in on fixed rent   | FA            | 1.25      | 0         | Rainy (Kharif)    | PIGEONPEA |        |        |        |        | 2334                    | IAP10D0057 | TRUE |
+| 2010   | ERIKILODI CHENU | F         | 2.5         | Leased-in on fixed rent   | FA            | 1.25      | 0         | Rainy (Kharif)    | PIGEONPEA |        |        |        |        | 2334                    | IAP10D0057 | TRUE |
+| 2010   | BAS WALA        | A         | 0.75        | Own land                  |               | 0.18      | 0.75      | Rainy (Kharif)    | Paddy     |        |        |        |        |                         | IBH10C0040 | TRUE |
+| 2010   | BAS WALA        | A         | 0.75        | Own land                  |               | 0.18      | 0.75      | Rainy (Kharif)    | Paddy     |        |        |        |        |                         | IBH10C0040 | TRUE |
+| 2014   | BENGA BADH      | H         | 0.649999976 | Leased-out on crop share  | H             |           |           | Post rainy (Rabi) |           |        |        |        |        | 5250                    | IBH14D0056 | TRUE |
+| 2014   | BENGA BADH      | H         | 0.649999976 | Leased-out on crop share  | H             |           |           | Post rainy (Rabi) |           |        |        |        |        | 5250                    | IBH14D0056 | TRUE |
+
+There are 56 entires stemming from 2014 raw data file, specifically for households in Odisha, where the column `crop_5` contains numeric values instead of strings \(crop names\). Whenever, digits occur in `crop_5`, `plot_rent_received_paid` is blank. So these vales in `crop_5` will be extrapolated to their corresposnding positions in `plot_rent_received_paid`.
+
+The crop names are spread across 5 crop name columns. There are around 348 rogue crop names which vary across spellings and even includes regional names. These rougue string values are mapped to their respective english names and available at [crop_names_map.json]() and later mapped to their crop types and available at [crop_type_map.json](). Once the crop type has been mapped, we checked for duplicates again across all columns in the dataset and found the following 24 observations:
+
+| sur_yr | plot_name       | plot_code | plot_area   | ownership_status_plotlist | sub_plot_code | crop_area   | irri_area   | season         | crop_1       | crop_2 | crop_3 | crop_4 | crop_5 | plot_rent_received_paid | hh_id      | dups |
+| ------ | --------------- | --------- | ----------- | ------------------------- | ------------- | ----------- | ----------- | -------------- | ------------ | ------ | ------ | ------ | ------ | ----------------------- | ---------- | ---- |
+| 2014   | NAHAR PAR       | H         | 0.039999999 | Own land                  | H             | 0.039999999 |             | Perennial      | Timber Trees |        |        |        |        |                         | IBH14A0035 | TRUE |
+| 2014   | DEVI STHAN      | W         | 0.079999998 | Own land                  | W             | 0.079999998 |             | Perennial      | Timber Trees |        |        |        |        |                         | IBH14A0059 | TRUE |
+| 2014   | NAHAR PAR       | H         | 0.039999999 | Own land                  | H             | 0.039999999 |             | Perennial      | Timber Trees |        |        |        |        |                         | IBH14A0035 | TRUE |
+| 2014   | DEVI STHAN      | W         | 0.079999998 | Own land                  | W             | 0.079999998 |             | Perennial      | Timber Trees |        |        |        |        |                         | IBH14A0059 | TRUE |
+| 2010   | GHARCHESHET     | B         | 3           | Own land                  | BA            | 1.25        | 1.25        | Perennial      | Fruits       |        |        |        |        |                         | IMH10D0312 | TRUE |
+| 2010   | GHARCHESHET     | B         | 3           | Own land                  | BA            | 1.25        | 1.25        | Perennial      | Fruits       |        |        |        |        |                         | IMH10D0312 | TRUE |
+| 2012   | DARWAZE PAR     | E         | 0.05        | Own land                  |               | 0.05        | 0.05        | Perennial      | Timber Trees |        |        |        |        |                         | IBH12A0033 | TRUE |
+| 2012   | DARWAZE PAR     | E         | 0.05        | Own land                  |               | 0.05        | 0.05        | Perennial      | Timber Trees |        |        |        |        |                         | IBH12A0033 | TRUE |
+| 2012   | MIYA BAGICHA    | C         | 0.31        | Own land                  |               | 0.31        | 0.31        | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH12B0039 | TRUE |
+| 2012   | MIYA BAGICHA    | C         | 0.31        | Own land                  |               | 0.31        | 0.31        | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH12B0039 | TRUE |
+| 2012   | UTTAR BHAR      | B         | 0.19        | Own land                  |               | 0.19        | 0.19        | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH12B0040 | TRUE |
+| 2012   | UTTAR BHAR      | B         | 0.19        | Own land                  |               | 0.19        | 0.19        | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH12B0040 | TRUE |
+| 2012   | DEVI ASTHAN     | B         | 0.22        | Own land                  |               | 0.22        | 0.22        | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH12B0041 | TRUE |
+| 2012   | DEVI ASTHAN     | B         | 0.22        | Own land                  |               | 0.22        | 0.22        | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH12B0041 | TRUE |
+| 2012   | HASUR TANR      | E         |             | Own land                  | EA            | 0.13        |             | Rainy (Kharif) | Pulses       |        |        |        |        |                         | IJH12D0036 | TRUE |
+| 2012   | HASUR TANR      | E         |             | Own land                  | EA            | 0.13        |             | Rainy (Kharif) | Pulses       |        |        |        |        |                         | IJH12D0036 | TRUE |
+| 2013   | Ghoghar Nal Par | B         |             | Own land                  | B             | 0.100000001 | 0.100000001 | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH13A0037 | TRUE |
+| 2013   | Ghoghar Nal Par | B         |             | Own land                  | B             | 0.100000001 | 0.100000001 | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH13A0037 | TRUE |
+| 2013   | Rahi Par        | A         |             | Own land                  | AA            | 0.02        | 0.02        | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH13C0010 | TRUE |
+| 2013   | Rahi Par        | A         |             | Own land                  | AA            | 0.02        | 0.02        | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH13C0010 | TRUE |
+| 2013   | Najir Wala      | F         |             | Own land                  | F             | 0.039999999 | 0.039999999 | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH13C0037 | TRUE |
+| 2013   | Najir Wala      | F         |             | Own land                  | F             | 0.039999999 | 0.039999999 | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH13C0037 | TRUE |
+| 2013   | Bhitha Ghar     | L         |             | Own land                  | L             | 0.050000001 | 0.050000001 | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH13C0052 | TRUE |
+| 2013   | Bhitha Ghar     | L         |             | Own land                  | L             | 0.050000001 | 0.050000001 | Rainy (Kharif) | Cereals      |        |        |        |        |                         | IBH13C0052 | TRUE |
+
+We believe, positively, that these duplicates arise because the enumerator, listed multiple crops cultivated together in the same plot in the same season instead of writing it in the `crop_2` column. Since these crops belong to the same category cultivates in the same plot of the same housheold, these duplicates \(12 observations\) can be removed. Later, another round of duplication check was conducted based on columns `hh_id, plot_name, plot_code, sub_plot_code, ownership_status_plotlist, season, crop_1_type, crop_2_type, crop_3_type, crop_4_type, crop_5_type`. The following 36 observations were flagged:
+| sur_yr | plot_name | plot_code | plot_area | ownership_status_plotlist | sub_plot_code | crop_area | irri_area | season | crop_1 | crop_2 | crop_3 | crop_4 | crop_5 | plot_rent_received_paid | hh_id | crop_1_type | crop_2_type | crop_3_type | crop_4_type | crop_5_type | dups |
+|--------|--------------------------|-----------|-------------|---------------------------|---------------|-------------|-------------|-------------------|-------------|--------|--------|--------|--------|-------------------------|------------|-------------|-------------|-------------|-------------|-------------|------|
+| 2012 | MASTER GHAR NEAR | F | 0.13 | Own land | | 0.13 | 0.13 | Rainy (Kharif) | Rice | | | | | | IBH12C0059 | Cereals | | | | | TRUE |
+| 2012 | MASTER GHAR NEAR | F | 0.13 | Own land | | 0.1 | 0.1 | Rainy (Kharif) | Rice | | | | | | IBH12C0059 | Cereals | | | | | TRUE |
+| 2014 | BAGICHA | E | 0.100000001 | Own land | E | 0.1 | 0.1 | Perennial | Other | | | | | | IBH14B0036 | Fallow | | | | | TRUE |
+| 2014 | BAGICHA | E | 0.100000001 | Own land | E | 0.1 | | Perennial | Fallow | | | | | | IBH14B0036 | Fallow | | | | | TRUE |
+| 2014 | BAGICHA | D | 0.310000002 | Own land | D | 0.31 | 0.31 | Perennial | Fallow | | | | | | IBH14B0043 | Fallow | | | | | TRUE |
+| 2014 | BAGICHA | D | 0.310000002 | Own land | D | | | Perennial | Fallow | | | | | | IBH14B0043 | Fallow | | | | | TRUE |
+| 2014 | BAGICHA | D | 0.31 | Own land | D | 0.31 | 0.310000002 | Perennial | Fallow | | | | | | IBH14B0045 | Fallow | | | | | TRUE |
+| 2014 | BAGICHA | D | 0.310000002 | Own land | D | | | Perennial | Fallow | | | | | | IBH14B0045 | Fallow | | | | | TRUE |
+| 2014 | BAGICHA | E | 1 | Own land | E | 1 | 1 | Perennial | Other | | | | | | IBH14B0059 | Fallow | | | | | TRUE |
+| 2014 | BAGICHA | E | 1 | Own land | E | 1 | | Perennial | Fallow | | | | | | IBH14B0059 | Fallow | | | | | TRUE |
+| 2014 | GACHHI | F | 0.050000001 | Own land | F | 0.050000001 | 0.050000001 | Perennial | Mango | | | | | | IBH14C0034 | Fruits | | | | | TRUE |
+| 2014 | GACHHI | F | 0.050000001 | Own land | F | 0.050000001 | 0.05 | Perennial | Mango | | | | | | IBH14C0034 | Fruits | | | | | TRUE |
+| 2014 | BABURWANI | F | 0.02 | Own land | F | 0.02 | 0.02 | Perennial | Other | | | | | | IBH14C0038 | Fallow | | | | | TRUE |
+| 2014 | BABURWANI | F | 0.02 | Own land | F | 0.02 | 0.02 | Perennial | Fallow | | | | | | IBH14C0038 | Fallow | | | | | TRUE |
+| 2014 | GACHHI | F | 0.100000001 | Own land | F | 0.100000001 | 0.100000001 | Perennial | Mango | | | | | | IBH14C0039 | Fruits | | | | | TRUE |
+| 2014 | GACHHI | F | 0.100000001 | Own land | F | 0.100000001 | 0.1 | Perennial | Mango | | | | | | IBH14C0039 | Fruits | | | | | TRUE |
+| 2014 | RAHI PAR | A | 0.349999994 | Own land | A | 0.349999994 | 0.349999994 | Perennial | Mango | Other | | | | | IBH14C0043 | Fruits | Fallow | | | | TRUE |
+| 2014 | RAHI PAR | A | 0.349999994 | Own land | A | 0.349999994 | 0.35 | Perennial | Mango | Fallow | | | | | IBH14C0043 | Fruits | Fallow | | | | TRUE |
+| 2014 | GACHHI PAR WALA | H | 0.119999997 | Own land | H | 0.119999997 | 0.119999997 | Perennial | Mango | Other | | | | | IBH14C0047 | Fruits | Fallow | | | | TRUE |
+| 2014 | GACHHI PAR WALA | H | 0.119999997 | Own land | H | 0.119999997 | 0.12 | Perennial | Mango | Other | | | | | IBH14C0047 | Fruits | Fallow | | | | TRUE |
+| 2014 | DIH GACHHI | I | 0.150000006 | Own land | I | 0.150000006 | 0.150000006 | Perennial | Mango | | | | | | IBH14C0054 | Fruits | | | | | TRUE |
+| 2014 | DIH GACHHI | I | 0.150000006 | Own land | I | 0.059999999 | 0.06 | Perennial | Mango | | | | | | IBH14C0054 | Fruits | | | | | TRUE |
+| 2014 | GACHHI | K | 0.200000003 | Own land | K | 0.200000003 | 0.200000003 | Perennial | Mango | Other | | | | | IBH14C0058 | Fruits | Fallow | | | | TRUE |
+| 2014 | GACHHI | K | 0.200000003 | Own land | K | 0.200000003 | 0.2 | Perennial | Mango | Fallow | | | | | IBH14C0058 | Fruits | Fallow | | | | TRUE |
+| 2014 | GACHHI AAM WALA | G | 0.150000006 | Own land | G | 0.150000006 | 0.150000006 | Perennial | Mango | | | | | | IBH14C0200 | Fruits | | | | | TRUE |
+| 2014 | GACHHI AAM WALA | G | 0.150000006 | Own land | G | 0.150000006 | 0.15 | Perennial | Mango | | | | | | IBH14C0200 | Fruits | | | | | TRUE |
+| 2014 | MIYA PASCHIM | C | 0.029999999 | Own land | C | 0.029999999 | 0.029999999 | Perennial | Mango | | | | | | IBH14C0201 | Fruits | | | | | TRUE |
+| 2014 | MIYA PASCHIM | C | 0.029999999 | Own land | C | 0.029999999 | 0.03 | Perennial | Mango | | | | | | IBH14C0201 | Fruits | | | | | TRUE |
+| 2014 | MIYA PASCHIM | C | 0.039999999 | Own land | C | 0.039999999 | 0.039999999 | Perennial | Mango | | | | | | IBH14C0202 | Fruits | | | | | TRUE |
+| 2014 | MIYA PASCHIM | C | 0.039999999 | Own land | C | 0.039999999 | 0.04 | Perennial | Mango | | | | | | IBH14C0202 | Fruits | | | | | TRUE |
+| 2012 | HASUR TANR | E | | Own land | EA | 0.13 | | Rainy (Kharif) | Black gram | | | | | | IJH12D0036 | Pulses | | | | | TRUE |
+| 2012 | HASUR TANR | E | | Own land | EA | 0.13 | | Rainy (Kharif) | Horse gram | | | | | | IJH12D0036 | Pulses | | | | | TRUE |
+| 2010 | GHARCHESHET | B | 3 | Own land | BA | 1.25 | 1.25 | Perennial | Pomegranate | | | | | | IMH10D0312 | Fruits | | | | | TRUE |
+| 2010 | GHARCHESHET | B | 3 | Own land | BA | 1.25 | 1.25 | Perennial | Berries | | | | | | IMH10D0312 | Fruits | | | | | TRUE |
+| 2013 | Baraha Kani | A | | Own land | | 1 | 0 | Post rainy (Rabi) | Chickpea | | | | | | IOR13B0203 | Pulses | | | | | TRUE |
+| 2013 | Baraha Kani | A | | Own land | | 2 | 0 | Post rainy (Rabi) | Black gram | | | | | | IOR13B0203 | Pulses | | | | | TRUE |
+
+Out of the above, we will be specifically handling the households as the following:
+
+- Household `IBH12C0059` have same crop name from the same category and diferent values in the `crop_area` and `plot_area` columns distinguishing them. However, row one shows that the total crop area beig used for rice cultivation. Hence the second row is covered and will be removed.
+
+- Households `IBH14B0036` and `IBH14B0059` have different crop names \(Fallow and Other\) but the second row contains a missing value and hecne the first row, since it provide more information, will have more weightage to be retained.
+
+- Households `IBH14B0043` and `IBH14B0045` have same crop names of the same cropt type but in row 2, the `crop_area` and `plot_area` columns are missing and moreover, crop in row 1 covers the entire plot area. Hence row 1 will be retained.
+
+- Household `IBH14C0054` has the same crop but row one indicates cultivation of mangoes for the entire plot area and row 2 is assumed to be only a subset of row 1. Hence, row 2 will be removed.
+
+- Household `IOR13B0203` doesn't mention the total plot area and has different crops cultivated in different `crop_area` values. We inspected whether the same housheold mentions `plot_area` in any other years and found that in 2014, the same household `IOR14B0203` marks a `plot_area` of 2. Hence, row 2 of the household is decided to be retained.
+
+- Household `IBH14C0038` both rows are exact replicas except for crop name. Since Fallow is better defined that Others in `crop_1`, the row 1 will be removed.
+
+For the households:
+
+- IBH14C0034
+- IBH14C0039
+- IBH14C0043
+- IBH14C0047
+- IBH14C0058
+- IBH14C0200
+- IBH14C0201
+- IBH14C0202
+  can observe that the differences between duplicates arise from the float values in `irri_area`. so row 2 of all the above households will be removed. Household `IJH12D0036` and `IMH10D0312` have different crops but numeric values in `plot_area`, `crop_area` and `irri_area`is the same. So, row 2 will be removed to get a unique value.
+
+Now that all duplicates are removed, we will proceed to widening the dataframe. To reduce the dimensionality involved, we can remove the `plot_name` column. This can be achieved by grouping by all the string columns except plot name. We have manually inspected these rows and they are similar in all except for the plot name. So a `grouby.agg` fucntionality of `Pandas` package will achieve the desired the result.
