@@ -12,7 +12,11 @@ General Facts:
 
 ## tSNE and Deep Learning
 
-Basic wrangling exercises include - Ensuring presence uniform column names for compatible datasets stemming from east-india and sat-india folders.
+Basic wrangling exercises include:
+
+- There are mutiple files stemming from east india and sat india folders. These files are concatenated into a single file for each sub dataset. Each sub dataset being data obtained from source belonging to specific schdeules of the questionnaire.
+
+- Ensuring presence uniform column names for compatible datasets stemming from east-india and sat-india folders.
 
 - Removing columns with all the entires as missing values.
 
@@ -113,7 +117,9 @@ The basic wrangling measures were followed by recoding of the `item_name` column
 - Bore-well or Open-well
 - Others
 
-However, the data contained around 237 rogue categories whcih varied widely in terms of string, spellings etc. All such rogue values were carefully checked and mapped to one of the values in the above list. The category mapping was followed by widening of the dataset. There are multiple households which own many number of the same equipment, some fully owned by the household and some shared at a percent of stake, as reported in the `prct_share` column. So these multiple number of the equipments at different stake act as duplicates of eachother. To resolve this we can make use of the `farm_equipment_present_value` column which, as per the documnetation, is the reported value of the implement as per the stake in the ownership. So to widen the dataset, the `prct_share` column can be ignored and the same equipments can be aggregated in terms of the number and its present value. For the column, `horse_power` recorded only for major machinery like tractor, thresher, and pumpset, we take the maximum value within the `item_name` category.
+However, the data contained around 237 rogue categories whcih varied widely in terms of string, spellings etc. All such rogue values were carefully checked and mapped to one of the values in the above list. The mapper employed to achive the recode of these values is available at [farm_equip_map.json]()
+
+The category mapping was followed by widening of the dataset. There are multiple households which own many number of the same equipment, some fully owned by the household and some shared at a percent of stake, as reported in the `prct_share` column. So these multiple number of the equipments at different stake act as duplicates of eachother. To resolve this we can make use of the `farm_equipment_present_value` column which, as per the documnetation, is the reported value of the implement as per the stake in the ownership. So to widen the dataset, the `prct_share` column can be ignored and the same equipments can be aggregated in terms of the number and its present value. For the column, `horse_power` recorded only for major machinery like tractor, thresher, and pumpset, we take the maximum value within the `item_name` category.
 
 #### Building & consumer durables (VDSA – G)
 
@@ -126,7 +132,7 @@ The Building and consumer durables schedule under the GES questionnaire collects
 
 The basic wrangling exercises were implemented and the column names were renamed for clarity.
 
-While checking for duplicate entires in the dataset by considering all columns in the dataset, we observed that 1740 values were tagged as duplicates. A sub sample of 50 observations from this duplicate sare presented here for reference:
+While checking for duplicate entires in the dataset by considering all columns in the dataset, we observed that 2308 values were tagged as duplicates. A sub sample of 50 observations from this duplicate sare presented here for reference:
 
 | sur_yr | hh_id      | item_name        | item_qty | present_value_durable | who_owns_durable | dups |
 | ------ | ---------- | ---------------- | -------- | --------------------- | ---------------- | ---- |
@@ -181,12 +187,39 @@ While checking for duplicate entires in the dataset by considering all columns i
 | 2012   | IOR12A0008 | `Furniture       |          | 6000                  |                  | TRUE |
 | 2012   | IOR12A0008 | Watches          | 1        | 100                   |                  | TRUE |
 
-After inspecting multiple values amongst the duplicate rows, we tend to bele
+After inspecting multiple values amongst the duplicate rows, we tend to believe that its difficult conclude that these values are duplicates becuase teh same household can necessarily two different items with the same value that they can assign to a general category, for example, like "Furniture". So the approach is consider these observations as valid entries and sum them up at household and item name level.
+
+Inorder to groupby and sum over `hh_id` and `item_name`, the categorical values in `item_name` were cleanned. There were around 177 rogue string values. These values have been recoded to reflect the values provided in the questionnaire. The mapper file used ia available at [consumer_durables_name_map.json]()
+
+Post name mapping, the values were grouped, aggregated and widened to give the final dataset.
+
+##### Buildings
+
+#### Stock inventory (VDSA – N)
+
+The stock inventory schedule of the GES questionnaire enquires about the quantity, unit price and total value of the inventory kept with the household. The inventory is split into the follwoing broader categories: Cereals, Pulses, Oilseeds, Other items, Fodders, Cattle Feed, Cooking Fuel and Inputs.
+
+Afte performing the basic wrangling measures, we check for duplicates in the within the dataset. We found 10 observations with dupllicates and the necessary acxtion has been taken to remove them. Adding duplicates here for reference:
+| sur_yr | hh_id | stock_category | item_stock | unit_stock | qty_stock | unit_price_stock | total_value_stock | dups |
+|--------|------------|--------------------|----------------------------|------------|-----------|------------------|-------------------|------|
+| 2012 | IAP12C0007 | Cereals | Finger millet | Kg | 50 | 15 | 750 | TRUE |
+| 2012 | IAP12C0007 | Cereals | Rice | Kg | 160 | 26 | 4160 | TRUE |
+| 2012 | IAP12C0007 | Cereals | Finger millet | Kg | 50 | 15 | 750 | TRUE |
+| 2012 | IAP12C0007 | Cereals | Rice | Kg | 160 | 26 | 4160 | TRUE |
+| 2013 | IBH13A0034 | Oil seeds | Refined Oil/Vanaspati Ghee | Kg | 1 | 90 | 90 | TRUE |
+| 2013 | IBH13A0034 | Oil seeds | Refined Oil/Vanaspati Ghee | Kg | 1 | 90 | 90 | TRUE |
+| 2013 | IJH13D0010 | Pulses | Lentil (Masoor) | Kg | 0.5 | 50 | 25 | TRUE |
+| 2013 | IJH13D0010 | Pulses | Lentil (Masoor) | Kg | 0.5 | 50 | 25 | TRUE |
+| 2014 | IBH14B0003 | Cooking | Dung cake | Kg | 100 | 3 | 300 | TRUE |
+| 2014 | IBH14B0003 | Cooking | Dung cake | Kg | 100 | 3 | 300 | TRUE |
+
+We will not consider the name of each item, instead will try to redue the data to the previously mentioned broad categories of items. Hence `stock_category` column was remapped to match the categories, mentioned earlier, in the questionnaire \(respective mapper is available in the script\). The columns `qty_stock, unit_price_stock, total_value_stock` whcih contained numeric values were converted to float data type. Then the dataset was converted to wide data form for further processing.
 
 #### Debt and Credit Schedule (VDSA – P)
 
-After performing the basic wrangling, the categoies of the `source` column has been identified to be 176. These rogue categories have been recoded into the categories as per the questionnaire. They ar- Co-operative banks
+After performing the basic wrangling, the categoies of the `source` column has been identified to be 176. These rogue categories have been recoded into the categories as per the questionnaire \(respective mapper is available in the script\). They are:
 
+- Co-operative banks
 - Commercial banks
 - Grameen bank (RRB)
 - Friends & relatives
@@ -203,6 +236,305 @@ After performing the basic wrangling, the categoies of the `source` column has b
 Similarly the `purpose` column was numeric. We have extracted the corresponding string values from the questionnaire and mapped them.
 
 After mapping the categories, we identified certain cases where the same household was taking as loan or saving different amounts from the same source for the same purpose. There were 555 such entries in the data and they were grouped at a household, source and purpose level. Such grouped cases were aggregated (intra group) after estimating a blended interest for the respective amounts. Regarding the duration of such entries, the maximum duration, within group, of saving or loan among such entires were extrapolated.
+
+#### Role of gender
+
+The role of gender schedule of the GES questionnaire collects information from both women and men of the household abou their involvement in the decision making process of the household. It's divided into two sub sections:
+
+##### Resource ownership and decision-making
+
+Under this section, men and women of the household responds to questions about who owns the assets of the household, who makes the collective decision of the household and who influences the utilization and management of the assets and resources of the household.
+
+After exercising the basic wrangling measures, there exists 2 problems with the data:
+
+- Issue 1: While concatenating multiple sub datasets from east india and sat india folders, some datasets have information split into the following columns \(actuals\): `ownership, deci_making, who_infl_util`. These column have values as `Male`, `Female` and `Both`. However, some other subsets hold their information in columns \(suffix columns\):`ownership_m,	ownership_f,	deci_making_f, who_infl_util_m, who_infl_util_f` where the same information \(pertaining various other states\) is split into male, and female based results, indicated by the suffix \_m and \_f in the column names. Since, the suffix columns and actuals belong to different states, they are mutually exclusive. Hence, steps where taken to ensure that responses indicated in these columns are compiled together in 3 separate columns mentioned as actuals.
+
+- Issue 2: Notice the suffix splitting responses into male and female responses. In all the cases, these responses are the same in both male and female column. Also, there are cases where male column will be empty but female column will have a valid resposnes. So we extrapolated the response in the female column to the male column. Post resolving Issue 2, which Issue 1 was resolved.
+
+After resolving both of these issues, the male and female columns were removed for all distinct repsonses in those columns were mapped to the actuals which will carry the entire weight of the dataset.
+
+Then the column `resources` were cleaned off of rogue string values to reflect the categories provided in the questionnaire. Now that the string values are cleansed, a duplicate check on the data across columns `hh_id, reso_category, resource`, the later two corresoponding to the resource category and resource ownded by the household found 37 duplicate observations. Those are:
+| sur_yr | hh_id | reso_category | resource | ownership | deci_making | who_infl_util | dups |
+|--------|------------|---------------|---------------------------------|-----------|-------------|---------------|------|
+| 2012 | IJH12A0058 | assets | land | Male | Both | Both | TRUE |
+| 2012 | IJH12A0058 | assets | land | Male | Both | Both | TRUE |
+| 2012 | IBH12D0057 | assets | land | Male | Male | Male | TRUE |
+| 2012 | IBH12D0057 | assets | land | Male | Male | Male | TRUE |
+| 2014 | IOR14C0010 | assets | machinery | | | | TRUE |
+| 2014 | IOR14C0010 | assets | investment | | | | TRUE |
+| 2014 | IOR14C0010 | inputs | fertilizers | | | | TRUE |
+| 2014 | IOR14C0010 | inputs | pesticides | | | | TRUE |
+| 2014 | IOR14C0010 | others | women stepping out of the house | | Female | Female | TRUE |
+| 2014 | IOR14B0010 | assets | land | Male | Male | Male | TRUE |
+| 2014 | IOR14B0010 | assets | livestock | | | | TRUE |
+| 2014 | IOR14B0010 | assets | credit | Male | Male | Male | TRUE |
+| 2014 | IOR14B0010 | assets | investment | Male | Male | Male | TRUE |
+| 2014 | IOR14B0010 | outputs | crop main production | Male | Male | Male | TRUE |
+| 2014 | IOR14B0010 | outputs | sale quantity | Male | Male | Male | TRUE |
+| 2014 | IOR14B0010 | assets | land | Male | Male | Male | TRUE |
+| 2014 | IOR14B0010 | assets | livestock | | | | TRUE |
+| 2014 | IOR14B0010 | assets | credit | Male | Male | Male | TRUE |
+| 2014 | IOR14D0010 | inputs | seeds | Male | Male | Male | TRUE |
+| 2014 | IOR14D0010 | inputs | fertilizers | Male | Male | Male | TRUE |
+| 2014 | IOR14D0010 | inputs | seeds | Male | Male | Male | TRUE |
+| 2014 | IOR14D0010 | inputs | fertilizers | Male | Male | Male | TRUE |
+| 2014 | IOR14A0010 | others | household maintenance | | Both | Both | TRUE |
+| 2014 | IOR14A0010 | others | whom to give vote | | Male | Male | TRUE |
+| 2014 | IOR14C0010 | assets | machinery | | | | TRUE |
+| 2014 | IOR14C0010 | assets | investment | | | | TRUE |
+| 2014 | IOR14C0010 | inputs | fertilizers | | | | TRUE |
+| 2014 | IOR14C0010 | inputs | pesticides | | | | TRUE |
+| 2014 | IOR14C0010 | others | women stepping out of the house | | Female | Female | TRUE |
+| 2014 | IOR14B0010 | assets | land | Male | Male | Male | TRUE |
+| 2014 | IOR14B0010 | assets | livestock | | | | TRUE |
+| 2014 | IOR14B0010 | assets | credit | Male | Male | Male | TRUE |
+| 2014 | IOR14B0010 | assets | investment | Male | Male | Male | TRUE |
+| 2014 | IOR14B0010 | outputs | crop main production | Male | Male | Male | TRUE |
+| 2014 | IOR14B0010 | outputs | sale quantity | Male | Male | Male | TRUE |
+| 2014 | IOR14A0010 | others | household maintenance | | Both | Both | TRUE |
+| 2014 | IOR14A0010 | others | whom to give vote | | Male | Male | TRUE |
+
+From the table above, we observe 33 values stemming from the household `IOR14C0010`. Every alternate entry is a duplicate of the entry before it. Hence, these duplicates were removed and the dataset was widened for further processing.
+
+##### Role of gender in crop cultivation
+
+Under this section, men and women of the household responds to questions about who conducts activities related to cultivation and post cultivation of crops. The schedule identifies activities done solely and jointly by men and women.
+
+After conducting the basic data wrangling, one may notice that the resposnes of housheolds to each activity is marked by an \* in the columns `men, women, men_women` to identify as to who conducts the same.
+
+Before reassigning the \*, the `activity` describing the activity undertaken by the household was cleaned to better reflect the categories mentioned in the questionnaire. In the duplication check across all columns, the following 84 entires were identifed:
+| sur*yr | hh_id | activity | men | women | men_women | dups |
+|--------|------------|----------------------------------|-----|-------|-----------|------|
+| 2014 | IBH14B0090 | selection_of_crop | * | | | TRUE |
+| 2014 | IBH14B0090 | selection*of_crop | * | | | TRUE |
+| 2014 | IBH14D0200 | selection*of_crop | | | * | TRUE |
+| 2014 | IBH14D0200 | selection*of_crop | | | * | TRUE |
+| 2014 | IOR14D0054 | harvesting | _ | | | TRUE |
+| 2014 | IOR14D0054 | harvesting | _ | | | TRUE |
+| 2014 | IOR14D0054 | marketing | _ | | | TRUE |
+| 2014 | IOR14D0054 | marketing | _ | | | TRUE |
+| 2014 | IOR14D0054 | threshing | _ | | | TRUE |
+| 2014 | IOR14D0054 | threshing | _ | | | TRUE |
+| 2014 | IOR14D0055 | harvesting | _ | | | TRUE |
+| 2014 | IOR14D0055 | harvesting | _ | | | TRUE |
+| 2014 | IOR14D0055 | interculture | _ | | | TRUE |
+| 2014 | IOR14D0055 | interculture | _ | | | TRUE |
+| 2014 | IOR14D0055 | marketing | _ | | | TRUE |
+| 2014 | IOR14D0055 | marketing | _ | | | TRUE |
+| 2014 | IOR14D0055 | threshing | _ | | | TRUE |
+| 2014 | IOR14D0055 | threshing | _ | | | TRUE |
+| 2014 | IOR14D0055 | watching | _ | | | TRUE |
+| 2014 | IOR14D0055 | watching | _ | | | TRUE |
+| 2014 | IOR14D0056 | irrigation | _ | | | TRUE |
+| 2014 | IOR14D0056 | irrigation | _ | | | TRUE |
+| 2014 | IOR14D0056 | land*preparation | * | | | TRUE |
+| 2014 | IOR14D0056 | land*preparation | * | | | TRUE |
+| 2014 | IOR14D0056 | transplanting | _ | | | TRUE |
+| 2014 | IOR14D0056 | transplanting | _ | | | TRUE |
+| 2014 | IOR14D0057 | chemical*fertilizer_application | * | | | TRUE |
+| 2014 | IOR14D0057 | chemical*fertilizer_application | * | | | TRUE |
+| 2014 | IOR14D0057 | hand*weeding | * | | | TRUE |
+| 2014 | IOR14D0057 | hand*weeding | * | | | TRUE |
+| 2014 | IOR14D0057 | harvesting | _ | | | TRUE |
+| 2014 | IOR14D0057 | harvesting | _ | | | TRUE |
+| 2014 | IOR14D0057 | interculture | _ | | | TRUE |
+| 2014 | IOR14D0057 | interculture | _ | | | TRUE |
+| 2014 | IOR14D0057 | irrigation | _ | | | TRUE |
+| 2014 | IOR14D0057 | irrigation | _ | | | TRUE |
+| 2014 | IOR14D0057 | land*preparation | * | | | TRUE |
+| 2014 | IOR14D0057 | land*preparation | * | | | TRUE |
+| 2014 | IOR14D0057 | marketing | _ | | | TRUE |
+| 2014 | IOR14D0057 | marketing | _ | | | TRUE |
+| 2014 | IOR14D0057 | plant*protection_measures | * | | | TRUE |
+| 2014 | IOR14D0057 | plant*protection_measures | * | | | TRUE |
+| 2014 | IOR14D0057 | selection*of_crop | * | | | TRUE |
+| 2014 | IOR14D0057 | selection*of_crop | * | | | TRUE |
+| 2014 | IOR14D0057 | selection*of_variety | * | | | TRUE |
+| 2014 | IOR14D0057 | selection*of_variety | * | | | TRUE |
+| 2014 | IOR14D0057 | sowing*seed | * | | | TRUE |
+| 2014 | IOR14D0057 | sowing*seed | * | | | TRUE |
+| 2014 | IOR14D0057 | threshing | _ | | | TRUE |
+| 2014 | IOR14D0057 | threshing | _ | | | TRUE |
+| 2014 | IOR14D0057 | transplanting | _ | | | TRUE |
+| 2014 | IOR14D0057 | transplanting | _ | | | TRUE |
+| 2014 | IOR14D0057 | transport*of_fym_and_application | * | | | TRUE |
+| 2014 | IOR14D0057 | transport*of_fym_and_application | * | | | TRUE |
+| 2014 | IOR14D0057 | watching | _ | | | TRUE |
+| 2014 | IOR14D0057 | watching | _ | | | TRUE |
+| 2014 | IOR14D0058 | chemical*fertilizer_application | * | | | TRUE |
+| 2014 | IOR14D0058 | chemical*fertilizer_application | * | | | TRUE |
+| 2014 | IOR14D0058 | hand*weeding | * | | | TRUE |
+| 2014 | IOR14D0058 | hand*weeding | * | | | TRUE |
+| 2014 | IOR14D0058 | harvesting | _ | | | TRUE |
+| 2014 | IOR14D0058 | harvesting | _ | | | TRUE |
+| 2014 | IOR14D0058 | interculture | _ | | | TRUE |
+| 2014 | IOR14D0058 | interculture | _ | | | TRUE |
+| 2014 | IOR14D0058 | irrigation | _ | | | TRUE |
+| 2014 | IOR14D0058 | irrigation | _ | | | TRUE |
+| 2014 | IOR14D0058 | land*preparation | * | | | TRUE |
+| 2014 | IOR14D0058 | land*preparation | * | | | TRUE |
+| 2014 | IOR14D0058 | marketing | _ | | | TRUE |
+| 2014 | IOR14D0058 | marketing | _ | | | TRUE |
+| 2014 | IOR14D0058 | plant*protection_measures | * | | | TRUE |
+| 2014 | IOR14D0058 | plant*protection_measures | * | | | TRUE |
+| 2014 | IOR14D0058 | selection*of_crop | * | | | TRUE |
+| 2014 | IOR14D0058 | selection*of_crop | * | | | TRUE |
+| 2014 | IOR14D0058 | selection*of_variety | * | | | TRUE |
+| 2014 | IOR14D0058 | selection*of_variety | * | | | TRUE |
+| 2014 | IOR14D0058 | sowing*seed | * | | | TRUE |
+| 2014 | IOR14D0058 | sowing*seed | * | | | TRUE |
+| 2014 | IOR14D0058 | transplanting | _ | | | TRUE |
+| 2014 | IOR14D0058 | transplanting | _ | | | TRUE |
+| 2014 | IOR14D0058 | transport*of_fym_and_application | * | | | TRUE |
+| 2014 | IOR14D0058 | transport*of_fym_and_application | * | | | TRUE |
+| 2014 | IOR14D0058 | watching | _ | | | TRUE |
+| 2014 | IOR14D0058 | watching | _ | | | TRUE |
+
+These observations were checked thoroughly and every alternate row is a duplicate of the one above it. So, necessary action was taken to remove these rows. Interestingly, we see a lot of duplicate entries stemming from households `IOR14D0054, IOR14D0055, IOR14D0056, IOR14D0057, IOR14D0058`. Now that duplicates, across all columns are removed, we checked the same for columns `hh_id, activity` where the previously mentioned households display a peculiar phenomenon. We identified 56 duplicate entries across `hh_id, activity` and they duplicate because each activity, in the first row marks as being done by men and repeats to say that its being done by both men and women. The flagged entires are being added here for reference:
+
+| sur_yr | hh_id      | activity                         | men | women | men_women | dups |
+| ------ | ---------- | -------------------------------- | --- | ----- | --------- | ---- |
+| 2014   | IOR14D0054 | seed_selection_and_storage       |     |       | \*        | TRUE |
+| 2014   | IOR14D0054 | seed_selection_and_storage       | \*  |       |           | TRUE |
+| 2014   | IOR14D0054 | watching                         | \*  |       |           | TRUE |
+| 2014   | IOR14D0054 | watching                         |     |       | \*        | TRUE |
+| 2014   | IOR14D0055 | chemical_fertilizer_application  | \*  |       |           | TRUE |
+| 2014   | IOR14D0055 | chemical_fertilizer_application  |     |       | \*        | TRUE |
+| 2014   | IOR14D0055 | hand_weeding                     | \*  |       |           | TRUE |
+| 2014   | IOR14D0055 | hand_weeding                     |     |       | \*        | TRUE |
+| 2014   | IOR14D0055 | irrigation                       | \*  |       |           | TRUE |
+| 2014   | IOR14D0055 | irrigation                       |     |       | \*        | TRUE |
+| 2014   | IOR14D0055 | land_preparation                 | \*  |       |           | TRUE |
+| 2014   | IOR14D0055 | land_preparation                 |     |       | \*        | TRUE |
+| 2014   | IOR14D0055 | plant_protection_measures        | \*  |       |           | TRUE |
+| 2014   | IOR14D0055 | plant_protection_measures        |     |       | \*        | TRUE |
+| 2014   | IOR14D0055 | seed_selection_and_storage       |     |       | \*        | TRUE |
+| 2014   | IOR14D0055 | seed_selection_and_storage       | \*  |       |           | TRUE |
+| 2014   | IOR14D0055 | selection_of_crop                | \*  |       |           | TRUE |
+| 2014   | IOR14D0055 | selection_of_crop                |     |       | \*        | TRUE |
+| 2014   | IOR14D0055 | selection_of_variety             | \*  |       |           | TRUE |
+| 2014   | IOR14D0055 | selection_of_variety             |     |       | \*        | TRUE |
+| 2014   | IOR14D0055 | sowing_seed                      | \*  |       |           | TRUE |
+| 2014   | IOR14D0055 | sowing_seed                      |     |       | \*        | TRUE |
+| 2014   | IOR14D0055 | transplanting                    | \*  |       |           | TRUE |
+| 2014   | IOR14D0055 | transplanting                    |     |       | \*        | TRUE |
+| 2014   | IOR14D0055 | transport_of_fym_and_application | \*  |       |           | TRUE |
+| 2014   | IOR14D0055 | transport_of_fym_and_application |     |       | \*        | TRUE |
+| 2014   | IOR14D0056 | chemical_fertilizer_application  | \*  |       |           | TRUE |
+| 2014   | IOR14D0056 | chemical_fertilizer_application  |     |       | \*        | TRUE |
+| 2014   | IOR14D0056 | hand_weeding                     | \*  |       |           | TRUE |
+| 2014   | IOR14D0056 | hand_weeding                     |     |       | \*        | TRUE |
+| 2014   | IOR14D0056 | harvesting                       | \*  |       |           | TRUE |
+| 2014   | IOR14D0056 | harvesting                       |     |       | \*        | TRUE |
+| 2014   | IOR14D0056 | interculture                     | \*  |       |           | TRUE |
+| 2014   | IOR14D0056 | interculture                     |     |       | \*        | TRUE |
+| 2014   | IOR14D0056 | marketing                        | \*  |       |           | TRUE |
+| 2014   | IOR14D0056 | marketing                        |     |       | \*        | TRUE |
+| 2014   | IOR14D0056 | plant_protection_measures        | \*  |       |           | TRUE |
+| 2014   | IOR14D0056 | plant_protection_measures        |     |       | \*        | TRUE |
+| 2014   | IOR14D0056 | selection_of_crop                | \*  |       |           | TRUE |
+| 2014   | IOR14D0056 | selection_of_crop                |     |       | \*        | TRUE |
+| 2014   | IOR14D0056 | selection_of_variety             | \*  |       |           | TRUE |
+| 2014   | IOR14D0056 | selection_of_variety             |     |       | \*        | TRUE |
+| 2014   | IOR14D0056 | sowing_seed                      | \*  |       |           | TRUE |
+| 2014   | IOR14D0056 | sowing_seed                      |     |       | \*        | TRUE |
+| 2014   | IOR14D0056 | threshing                        | \*  |       |           | TRUE |
+| 2014   | IOR14D0056 | threshing                        |     |       | \*        | TRUE |
+| 2014   | IOR14D0056 | transport_of_fym_and_application | \*  |       |           | TRUE |
+| 2014   | IOR14D0056 | transport_of_fym_and_application |     |       | \*        | TRUE |
+| 2014   | IOR14D0056 | watching                         | \*  |       |           | TRUE |
+| 2014   | IOR14D0056 | watching                         |     |       | \*        | TRUE |
+| 2014   | IOR14D0057 | seed_selection_and_storage       |     |       | \*        | TRUE |
+| 2014   | IOR14D0057 | seed_selection_and_storage       | \*  |       |           | TRUE |
+| 2014   | IOR14D0058 | seed_selection_and_storage       |     |       | \*        | TRUE |
+| 2014   | IOR14D0058 | seed_selection_and_storage       | \*  |       |           | TRUE |
+| 2014   | IOR14D0058 | threshing                        |     |       | \*        | TRUE |
+| 2014   | IOR14D0058 | threshing                        | \*  |       |           | TRUE |
+
+In order to account for these entires, we have decided to recognize that all of the above activities specifically for these households are being done by both men and women. Hence the entry which marks only men have been removed. We realize that we are assuming for the better here when we have decided to keep the former.
+
+The \* in the column were replaced with the value 1. While doing the same, it was ntoiced that the column `women` contained one observation with the value 9 and 3 observations in the column `men_women` with the value 0. These values were removed.
+
+#### Sources of marketing and other information
+
+The sources of marketing and other information schedule of the GES questionnaire identifies institutions which the household considers as valid sources of information and also the ranking in which the household would approach each for different activities related to cultivation.
+
+After performing basic wrangling measures, We identified 4 potential duplicate entries across all columns. Adding the same here:
+| sur_yr | hh_id | inputs | Input Dealer | Seed Company | Other Farmers | NGO | Agriculture/Veterinary Dept | Research Station | Media | Krishi-melas | Others | rese_station | ip_manu | dups |
+|--------|------------|--------------------|--------------|--------------|---------------|-----|-----------------------------|------------------|-------|--------------|--------|--------------|---------|------|
+| 2014 | IBH14B0090 | crop output prices | 2 | | 1 | | | | | | | | | TRUE |
+| 2014 | IBH14B0090 | crop output prices | 2 | | 1 | | | | | | | | | TRUE |
+| 2014 | IBH14D0200 | crop output prices | | | 1 | | | | | | | | | TRUE |
+| 2014 | IBH14D0200 | crop output prices | | | 1 | | | | | | | | | TRUE |
+
+The duplicates in the above table have been removed followed by cleaning the `inputs` column which lists the activities and resources which the household would seek information for. Again in the duplicate entry check, we found the following entry:
+| sur_yr | hh_id | inputs | Input Dealer | Seed Company | Other Farmers | NGO | Agriculture/Veterinary Dept | Research Station | Media | Krishi-melas | Others | rese_station | ip_manu | dups |
+|--------|------------|--------------------|--------------|--------------|---------------|-----|-----------------------------|------------------|-------|--------------|--------|--------------|---------|------|
+| 2012 | IBH12A0001 | crop output prices | 1 | | 2 | | | | | | | | | TRUE |
+| 2012 | IBH12A0001 | crop output prices | 1 | | 2 | | | | | | | | | TRUE |
+
+The duplicate entry was removed. The columns `rese_station, ip_manu` were renamed for better clarity. Also, all the columns have numbers or ranks as response values and hence all th columns were convereted to float data type. The dataframe was then widened to enable further processing.
+
+#### Coping mechanisms
+
+The coping mechanisms schedule of the GES questionnaire collects information from hosueholds related to the fact whether their livelihoods were affected by any severe drought/flood/pest/diseases/misfortunes. If yes, whether they received any support from the government. There are 3 parts to this schdeule:
+
+##### Coping Mechanisms
+
+##### Reliability ranking
+
+In the reliability ranking section, the schedule expects the respondents to rank various government institutions, family and friends in terms of acting as a source of assisstance both in times of flood and drought.
+
+After conducting the basic wrangling steps, the check for duplicate entires across all columns was conducted and no duplicates were found. Then we proceeded with cleaning the `sou_assistance` column which lists the various government institutions and other points of contact which are expected to be sought after by the affected households during the time of a disaster. The rogue string values in the column was cleaned and recoded to better reflect the questionnaire. There were quite a few rpgue strings which repeated themselves in different formats and were reluctant to place them in Others category instead we added sensible category names beyond the questionnaire and they are listed for reference:
+
+- Micro Finance
+- Landlord
+- Employer
+- Kinship and Relatives
+- Government
+- Input Dealer
+- Migration
+- Merchants
+- Labour Work
+- Others
+
+In the duplicate entry check across `hh-id, sou_assistance`, after cleaning the latter, it was found that there were 6 duplicate entries. These entries were inspected whether to have originated as a result of cleaning of string values in `sou_assistance` but negative. The follwoing entries are the suspected duplicates:
+| sur_yr | hh_id | sou_assistance | rank_rel_dro | rank_rel_flo | dups |
+|--------|------------|-----------------------|--------------|--------------|------|
+| 2014 | IOR14D0005 | kinship and relatives | | 6 | TRUE |
+| 2014 | IOR14D0005 | kinship and relatives | | 5 | TRUE |
+| 2014 | IOR14D0031 | kinship and relatives | | 5 | TRUE |
+| 2014 | IOR14D0031 | kinship and relatives | | 4 | TRUE |
+| 2014 | IOR14D0051 | village community | | 3 | TRUE |
+| 2014 | IOR14D0051 | village community | | 4 | TRUE |
+
+We can observe that the same household is ranking the same source with different ranks. So we have decided to asuume the best and take the highest rank \(lowest number\) assigned to a source in such cases. Also, the columns `rank_rel_dro, rank_rel_flo` which represents rank of source during drought and flood respectively, was converetd to float data type and renamed for better clarity.
+
+##### Proactive Measures
+
+In the proactive measures section, the households are enquired abouy the their Aadoption of any proactive measures to mitigate future climate change related losses or shocks.
+
+After performing basic wrangling steps, we discovered the presence 12 duplicate entires \(across all columns\) which are the following:
+| sur_yr | hh_id | ad_proac_mea | proac_mea | dups |
+|--------|------------|--------------|--------------------------------------------------------------|------|
+| 2014 | IMH14B0059 | Y | SAVING IN BANK | TRUE |
+| 2014 | IMH14B0059 | Y | SAVING IN BANK | TRUE |
+| 2011 | IBH11A0039 | Y | MIGRATION FOR WORK | TRUE |
+| 2011 | IBH11A0039 | Y | MIGRATION FOR WORK | TRUE |
+| 2011 | IBH11B0031 | Y | STORAGE OF FOOD GRAINS | TRUE |
+| 2011 | IBH11B0031 | Y | STORAGE OF FOOD GRAINS | TRUE |
+| 2011 | IBH11B0031 | Y | STORAGE OF FOOD GRAINS | TRUE |
+| 2011 | IBH11B0053 | Y | CASH SAVING | TRUE |
+| 2011 | IBH11B0053 | Y | CASH SAVING | TRUE |
+| 2012 | IBH12B0032 | Y | Storage Of Grains | TRUE |
+| 2012 | IBH12B0032 | Y | Storage Of Grains | TRUE |
+| 2012 | IBH12B0032 | Y | Storage Of Grains | TRUE |
+
+Steps were taken to remove the above duplicates. Moreover, there are two main issue with the data:
+
+- First major issue with the dataset is that, as seen above, the proactive measures are basically string values. There are no categories defined for this in the questionnaire which leaves us in the dark. Strangely enough, after stripping the column off white spaces and converting the strings to lower cases, to enforce uniformity in string values, we have 1706 unique rogue string values.
+
+- Second, the column `ad_proac_mea` which identifies households whoich adopted proactive emasures with a tag "Y", has only "Y" as the response. In other owrds, the dataset is exclusively about households which adopted proactive measures.
 
 ### Plot List and Cropping Pattern
 

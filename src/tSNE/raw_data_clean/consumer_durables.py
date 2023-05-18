@@ -1,10 +1,10 @@
 from utils.dir_values import dir_values
 from utils.data_wrangler import data_wrangler
-from utils.to_float import to_float
 from utils.check_duplicates import check_duplicates
 from utils.widen_frame import widen_frame
 import pandas as pd
 import numpy as np
+import json
 
 
 def cons_durab():
@@ -51,24 +51,42 @@ def cons_durab():
         )
 
         # renaming the column
-        df.rename(columns={"item_qty": "qty", "present_value_durable": "present_value"})
+        df.rename(
+            columns={"item_qty": "qty", "present_value_durable": "present_value"},
+            inplace=True,
+        )
 
-        # removing duplicates across acolumns.
-        # df.drop_duplicates(
-        #     inplace=True
-        # )  # 870 obs will be removed. Even I'm surprised and they look legit dups. check these values more exhaustively if have time later.
+        print(df.shape[0])
 
         # cleaning item_name column
-
         df["item_name"] = df["item_name"].str.strip().str.lower()
-        print(df["item_name"].value_counts())
-        print(df.size)
+
+        cons_durab_map = "./src/tsne/raw_data_clean/consumer_durables_name_map.json"
+
+        with open(cons_durab_map, "r") as infile:
+            all_names = dict(json.load(infile))
+
+        df["item_name"] = df["item_name"].replace(
+            all_names
+        )  # all names are checked and no missing values exist here
+
+        # print(df["item_name"].unique())
+
+        df = widen_frame(
+            df=df,
+            index_cols=["hh_id", "item_name"],
+            wide_cols=["qty", "present_value"],
+            agg_dict={"qty": "sum", "present_value": "sum"},
+        )
 
         check_duplicates(
             df=df,
             index_cols=["hh_id", "item_name"],
-            master_check=True,
-            write_file=True,
+            master_check=False,
+            write_file=False,
         )
 
-        # df.to_csv(interim_file, index=False)
+        df.to_csv(interim_file, index=False)
+
+    else:
+        print(f"{tag} interim file exists")

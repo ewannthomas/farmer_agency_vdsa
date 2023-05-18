@@ -127,3 +127,6 @@ def livestock():
         df = widen_frame(df=df, index_cols=["hh_id", "livestock_type"])
 
         df.to_csv(interim_file, index=False)
+
+    else:
+        print(f"{tag} interim file exists")

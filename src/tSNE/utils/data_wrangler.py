@@ -31,48 +31,55 @@ def data_wrangler(
     # adopting list of raw file paths
     raw_paths_list = path_values_create(region_folder_position=8, tag=tag)
 
-    raw_data_list = []
+    if len(raw_paths_list) < 10:
+        print(f"Files missing from {tag}. Available are:")
+        for file in raw_paths_list:
+            print(file["path"].stem, file["region"], file["year"])
+        print("Halting Process")
 
-    for file in raw_paths_list:
-        print(file["path"].stem, file["region"], file["year"])
+    elif len(raw_paths_list) == 10:
+        raw_data_list = []
 
-        # reading in the raw file
-        df = pd.read_excel(file["path"])
+        for file in raw_paths_list:
+            print(file["path"].stem, file["region"], file["year"])
 
-        # cleaning of column names
-        col_list = df.columns
-        col_list = [x.lower().replace(" ", "_") for x in col_list]
-        df.columns = col_list
+            # reading in the raw file
+            df = pd.read_excel(file["path"])
 
-        # removing unnecessary columns from the data
-        col_list = [x for x in col_list if x not in remove_cols]
-        df = df[col_list]
+            # cleaning of column names
+            col_list = df.columns
+            col_list = [x.lower().replace(" ", "_") for x in col_list]
+            df.columns = col_list
 
-        # renaming the necessary columns. Names will be sourced fronm the function assigned for each tag
-        if file["region"] == "eastindia":
-            df.rename(columns=rename_east, inplace=True)
+            # removing unnecessary columns from the data
+            col_list = [x for x in col_list if x not in remove_cols]
+            df = df[col_list]
 
-        if file["region"] == "satindia":
-            df.rename(columns=rename_sat, inplace=True)
+            # renaming the necessary columns. Names will be sourced fronm the function assigned for each tag
+            if file["region"] == "eastindia":
+                df.rename(columns=rename_east, inplace=True)
 
-        if tag == "Building":
-            # adding region value to file
-            df.insert(0, "region", file["region"])
-
-        if tag == "Gen_info":
-            df["sur_yr"] = file["year"]
-
-        # adding year value in satindia file
-        try:
             if file["region"] == "satindia":
-                df.insert(0, "sur_yr", file["year"])
-        except ValueError as ex:
-            print(
-                f"Error: Survey year already exists in {file['region']} {file['year']}"
-            )
+                df.rename(columns=rename_sat, inplace=True)
 
-        raw_data_list.append(df)
+            if tag == "Building":
+                # adding region value to file
+                df.insert(0, "region", file["region"])
 
-    df_appended = pd.concat(raw_data_list, axis=0)
+            if tag == "Gen_info":
+                df["sur_yr"] = file["year"]
 
-    return df_appended
+            # adding year value in satindia file
+            try:
+                if file["region"] == "satindia":
+                    df.insert(0, "sur_yr", file["year"])
+            except ValueError as ex:
+                print(
+                    f"Error: Survey year already exists in {file['region']} {file['year']}"
+                )
+
+            raw_data_list.append(df)
+
+        df_appended = pd.concat(raw_data_list, axis=0)
+
+        return df_appended

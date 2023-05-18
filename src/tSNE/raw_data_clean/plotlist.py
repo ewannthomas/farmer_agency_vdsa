@@ -467,7 +467,7 @@ def plotlist():
             df,
             index_cols=index_cols,
             # master_check=True,
-            write_file=True,
+            write_file=False,
         )
 
         df["plot_code"].dropna(

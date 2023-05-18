@@ -233,3 +233,6 @@ def landholding():
         df = widen_frame(df=df, index_cols=["hh_id", "sl_no", "plot_code"])
 
         df.to_csv(interim_file, index=False)
+
+    else:
+        print(f"{tag} interim file exists")
