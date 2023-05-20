@@ -57,11 +57,19 @@ def check_duplicates(
 
         except TabError:
             if write_file == True:
-                df_proxy.sort_values(index_cols, inplace=True)
-                print(
-                    f"{dup_count} duplicates across index columns. Halting process and writing file to interim directory."
-                )
-                df_proxy[df_proxy["dups"] == True].to_csv(dup_file, index=False)
+                try:
+                    df_proxy.sort_values(index_cols, inplace=True)
+                    print(
+                        f"{dup_count} duplicates across index columns. Halting process and writing file to interim directory."
+                    )
+                    df_proxy[df_proxy["dups"] == True].to_csv(dup_file, index=False)
+                except TypeError:
+                    print(f"{dup_count} duplicates across index columns.")
+                    print(
+                        "Values which can't be sorted exists in the data in index columns. Proceeding to data write without sorting"
+                    )
+                    df_proxy[df_proxy["dups"] == True].to_csv(dup_file, index=False)
+
             else:
                 print(f"{dup_count} duplicates across index columns. Halting process.")
 

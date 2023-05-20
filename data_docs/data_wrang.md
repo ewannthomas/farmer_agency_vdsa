@@ -477,9 +477,15 @@ The duplicate entry was removed. The columns `rese_station, ip_manu` were rename
 
 #### Coping mechanisms
 
-The coping mechanisms schedule of the GES questionnaire collects information from hosueholds related to the fact whether their livelihoods were affected by any severe drought/flood/pest/diseases/misfortunes. If yes, whether they received any support from the government. There are 3 parts to this schdeule:
+The coping mechanisms schedule of the GES questionnaire collects information from hosueholds related to the fact whether their livelihoods were affected by any severe drought/flood/pest/diseases/misfortunes. If yes, whether they received any support from the government. There are 4 parts to this schdeule:
 
 ##### Coping Mechanisms
+
+##### Government Assistance
+
+The governemnt assistance section enquires whether the household received any assistance from the government. And if yes, what is the assistance.
+
+As per the data is concerned, this contains only information about households which received governemnet assistance. Moreover the there are mutiple households which recived multiple assistance during the same time period. Beyond that, the `assist_type` column, listing the assistance received by each household, conatins only string values and need some other processing method to make inferences out of it.
 
 ##### Reliability ranking
 
@@ -535,6 +541,86 @@ Steps were taken to remove the above duplicates. Moreover, there are two main is
 - First major issue with the dataset is that, as seen above, the proactive measures are basically string values. There are no categories defined for this in the questionnaire which leaves us in the dark. Strangely enough, after stripping the column off white spaces and converting the strings to lower cases, to enforce uniformity in string values, we have 1706 unique rogue string values.
 
 - Second, the column `ad_proac_mea` which identifies households whoich adopted proactive emasures with a tag "Y", has only "Y" as the response. In other owrds, the dataset is exclusively about households which adopted proactive measures.
+
+### Cultivation Schedule (VDSA -Y)
+
+The cultivation schdeule is a dedicated towards collecting information on the quantity, price, total value and the size of total production of main and subsidiary crops by each household. It takes into account the seasons, plots and crop varieties. The schedule is divided into two sections:
+
+#### Crop Cultivation
+
+The data stemming from this section deals with crop cultivation by each household in each season at each plot they own. It measures the quantity, unit price and total value of production of main and subsidiary crops cultivated by each household.
+
+The dataset conatins information on land ownership, rent etc which are also present in the Plotlist and Cropping Patterns schedule and the GES schedule. Hence it's decided to remove the following columns from the dataset: `irri_area, plot_ownership_status,	rent_val, rent_tenure`.
+
+After performing the basic data wrangling measures, the numeric columns were converted to float data type. The cloumn `crop_variety_type` whcih identified whether the crop under consideration is local, hybrid or improved variety, has been mapped to the string values mentioned in the schedule.
+
+We couldn't find any duplicate entries across columns. We can, prima facie, understand that the unique entry identifiers of this dataset are columns `hh_id, plot_code, season, crop_name, crop_variety_name`. The check for duplicates tagged 41 observations as duplicates when checked across the above mentioned columns. The duplicate entries are:
+
+| sur_yr | hh_id      | plot_code | plot_area | season | crop_name | crop_variety_name | crop_variety_type | prct_area | op_main_prod_unit | op_main_prod_qty | op_main_prod_rate | op_by_prod_unit | op_by_prod_qty | op_by_prod_rate | op_ot_prod_unit | op_ot_prod_qty | op_ot_prod_rate | op_remarks | dups |
+| ------ | ---------- | --------- | --------- | ------ | --------- | ----------------- | ----------------- | --------- | ----------------- | ---------------- | ----------------- | --------------- | -------------- | --------------- | --------------- | -------------- | --------------- | ---------- | ---- |
+| 2010   | IBH10C0031 | C         | 0.15      | rabi   | wheat     | up262             | 2                 | 100       | Kg                | 25               | 12                | Qt              | 0.25           | 400             |                 |                |                 |            | TRUE |
+| 2010   | IBH10C0031 | C         | 0.15      | rabi   | wheat     | up262             | 2                 | 100       |                   |                  |                   | Qt              | 0              | 0               |                 |                |                 |            | TRUE |
+| 2011   | IBH11C0053 | A         | 0.25      | rabi   | wheat     | 234               | 1                 | 50        | Kg                | 30               | 30                | Qt              | 0.6            | 300             |                 |                |                 |            | TRUE |
+| 2011   | IBH11C0053 | A         | 0.25      | rabi   | wheat     | 234               | 1                 | 50        | Kg                | 25               | 30                |                 |                |                 |                 |                |                 |            | TRUE |
+| 2011   | IBH11C0053 | B         | 0.25      | rabi   | wheat     | 343               | 1                 | 50        | Kg                | 25               | 30                | Qt              | 0.6            | 300             |                 |                |                 |            | TRUE |
+| 2011   | IBH11C0053 | B         | 0.25      | rabi   | wheat     | 343               | 1                 | 50        | Kg                | 28               | 30                |                 |                |                 |                 |                |                 |            | TRUE |
+| 2011   | IBH11C0053 | C         | 0.25      | rabi   | wheat     | 343               | 1                 | 50        | Kg                | 20               | 30                | Qt              | 0.4            | 300             |                 |                |                 |            | TRUE |
+| 2011   | IBH11C0053 | C         | 0.25      | rabi   | wheat     | 343               | 1                 | 50        | Kg                | 30               | 30                |                 |                |                 |                 |                |                 |            | TRUE |
+| 2011   | IBH11C0053 | Q         | 0.4       | kharif | paddy     | sargu 52          | 1                 | 50        | Kg                | 500              | 10.8              | Qt              | 10             | 80              |                 |                |                 |            | TRUE |
+| 2011   | IBH11C0053 | Q         | 0.4       | kharif | paddy     | sargu 52          | 1                 | 50        |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2011   | IBH11C0053 | Q         | 0.4       | kharif | paddy     | sargu 52          | 1                 | 100       | Kg                | 600              | 10.8              | Qt              | 11             | 80              |                 |                |                 |            | TRUE |
+| 2011   | IBH11C0055 | FA        | 0.05      | kharif | paddy     | swarna            | 1                 | 30        |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2011   | IBH11C0055 | FA        | 0.05      | kharif | paddy     | swarna            | 1                 | 35        |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2013   | IBH13B0036 | D         | 0.1       | kharif | paddy     | mtv 7029          | 1                 | 100       |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2013   | IBH13B0036 | D         | 0.1       | kharif | paddy     | mtv 7029          | 1                 | 100       | Kg                | 150              | 15.6              | Qt              | 2              | 400             |                 |                |                 |            | TRUE |
+| 2013   | IBH13B0041 | B         | 0.11      | kharif | paddy     | mtv 7029          | 1                 | 100       |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2013   | IBH13B0041 | B         | 0.11      | kharif | paddy     | mtv 7029          | 1                 | 100       | Kg                | 170              | 15.6              | Qt              | 2.5            | 400             |                 |                |                 |            | TRUE |
+| 2013   | IBH13B0200 | B         | 0.11      | kharif | paddy     | mtv 7029          | 1                 | 100       |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2013   | IBH13B0200 | B         | 0.11      | kharif | paddy     | mtv 7029          | 1                 | 100       | Kg                | 150              | 15.6              | Qt              | 2.25           | 400             |                 |                |                 |            | TRUE |
+| 2013   | IBH13C0032 | E         | 0.04      | kharif | paddy     | rajendra mansoory | 2                 | 100       |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2013   | IBH13C0032 | E         | 0.04      | kharif | paddy     | rajendra mansoory | 2                 | 100       | Kg                | 50               | 10                | Qt              | 0.7            | 70              |                 |                |                 |            | TRUE |
+| 2013   | IBH13C0037 | F         | 0.04      | kharif | paddy     | rajendra mansoory | 2                 | 100       |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2013   | IBH13C0037 | F         | 0.04      | kharif | paddy     | rajendra mansoory | 2                 | 100       | Kg                | 60               | 10                | Qt              | 0.7            | 70              |                 |                |                 |            | TRUE |
+| 2013   | IBH13C0048 | E         | 0.04      | kharif | paddy     | mansoory          | 2                 | 50        |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2013   | IBH13C0048 | E         | 0.04      | kharif | paddy     | mansoory          | 2                 | 100       | Kg                | 50               | 10                | Qt              | 0.6            | 70              |                 |                |                 |            | TRUE |
+| 2013   | IBH13C0052 | L         | 0.05      | kharif | paddy     | 6444              | 2                 | 50        |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2013   | IBH13C0052 | L         | 0.05      | kharif | paddy     | 6444              | 2                 | 100       | Kg                | 80               | 10                | Qt              | 1              | 70              |                 |                |                 |            | TRUE |
+| 2013   | IBH13C0055 | C         | 0.07      | kharif | paddy     | saryug-52         | 2                 | 40        |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2013   | IBH13C0055 | C         | 0.07      | kharif | paddy     | saryug-52         | 2                 | 100       | Kg                | 90               | 10                | Qt              | 1              | 70              |                 |                |                 |            | TRUE |
+| 2013   | IBH13C0057 | F         | 0.03      | kharif | paddy     | swarna            | 2                 | 65        |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2013   | IBH13C0057 | F         | 0.03      | kharif | paddy     | swarna            | 2                 | 100       | Kg                | 15               | 10                | Qt              | 0.2            | 70              |                 |                |                 |            | TRUE |
+| 2014   | IBH14C0201 | M         | 0.05      | kharif | paddy     | mansoory          | 2                 | 11        |                   |                  |                   |                 |                |                 |                 |                |                 |            | TRUE |
+| 2014   | IBH14C0201 | M         | 0.05      | kharif | paddy     | mansoory          | 2                 | 84        | Kg                | 90               | 10                | Qt              | 1              | 200             |                 |                |                 |            | TRUE |
+| 2014   | IOR14B0031 | B         | 0.4       | kharif | paddy     | swarna            | 2                 | 100       | Kg                | 700              | 11.2              | Qt              | 5              | 50              |                 |                |                 |            | TRUE |
+| 2014   | IOR14B0031 | B         | 0.4       | kharif | paddy     | swarna            | 2                 | 100       | Kg                | 700              | 11.2              | Qt              | 6              | 50              |                 |                |                 |            | TRUE |
+| 2014   | IOR14B0035 | A         | 1         | kharif | paddy     | pooja             | 1                 | 100       | Kg                | 2200             | 11.2              |                 |                |                 |                 |                |                 |            | TRUE |
+| 2014   | IOR14B0035 | A         | 1         | kharif | paddy     | pooja             | 1                 | 100       | Kg                | 2200             | 11.2              | Qt              | 25             | 50              |                 |                |                 |            | TRUE |
+
+These duplicate entries can only be removed by carefully selecting the parameters for each household separately and then removing the duplicate entry based on which amongst the entires \(for the household, plot, crop, crop variety and crop type\) have more misisng values. Such actions taken for households in the above atable are as follows:
+
+- Household `IBH10C0031` producing wheat in plot C during rabi has 2 rows, where the second row is not adding any value to the data and hence determined as a duplicate and removed.
+
+- Household `IBH11C0053` producing wheat in plots A, B and C during rabi season has 2 rows for each plot and each row has different value for the columns `op_main_prod_qty,	op_main_prod_rate` which identifies the quantity and per unit price of the primary crop cultivated. Hence all the rows were retained.
+
+- Household `IBH11C0053` producing paddy in plot Q during kharif season has 3 rows, where the second row is not adding any value to the data and hence determined as a duplicate and removed.
+
+- Household `IBH13B0036, IBH13B0041, IBH13B0200, IBH13C0032, IBH13C0037` producing paddy in plots D, B, B, E, F respectively during kharif season has 2 rows, where the first row is not adding any value to the data and hence determined as a duplicate and removed.
+
+- Household `IBH11C0055, IBH13C0048, IBH13C0052, IBH13C0055, IBH13C0057, IBH14C0201` producing paddy in plots Q, E, L, C, F, M during kharif season has 2 rows, having different values in the `prct_area` column which identifies the portion of the total plot area which was used for cultivation that specific crop. These rows have misisng values in all other columns. Hence all the rows were retained.
+
+- Household `IOR14B0031` producing paddy in plot B during kharif season has two rows, where the first row has a different value for the column `op_by_prod_qty` which identifies the quantity of the subsidiary crop cultivated. Hence all the rows were retained.
+
+- Household `IOR14B0035` producing paddy in plot A during kharif has 2 rows, where the first row is not adding any value to the data and hence determined as a duplicate and removed.
+
+In total we have identified and removed 8 rows.
+
+For the remaining observations, it must be established that any analysis which we expect to conduct on the data will view this dataset not from the perspective of the crop types cultivated and not based on specific crop cultivated by the household. Having established same, we have grouped the dataset on the basis of `hh_id, plot_code, season` and type of crop cultivated. A new column `crop_type` was created after mapping the crop names existing in the dataset to a better and reduced naming system using the crop name mapper file [crop_names_map.json](). Then, the new names were furter mapped to their respective categories using the crop type mapper file [crop_type_map.json]().
+
+The dataset was grouped on the basis of `hh_id, plot_code, season, crop_type, crop_variety_type`. After being grouped, the columns `prct_area	op_main_prod_qty,	op_by_prod_qty,	op_ot_prod_qty`, which provides information on the percentage of plot area used for cultivation, and quantity of primary, subsidiary and other crops cultivated respectively, were aggregated and columns `op_main_prod_rate, op_by_prod_rate,	op_ot_prod_rate`, which provides information on the per unit price of primary, subsidiary and other crops cultivated respectively, were averaged to better reflect the groups. Thus, the data was widened for further processing.
+
+We also have information on the plot area used for cultivation, however, it will be better sourced from the plotlist and cropping pattern schedule.
+
+#### Inputs for Cultivation
 
 ### Plot List and Cropping Pattern
 

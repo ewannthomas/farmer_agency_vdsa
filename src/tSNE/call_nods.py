@@ -12,6 +12,8 @@ from raw_data_clean.gender_crop_cult import gender_crop_cult
 from raw_data_clean.info_ranking import info_ranking
 from raw_data_clean.reliab_rank import reliab_rank
 from raw_data_clean.proact_measures import proact_measures
+from raw_data_clean.govt_assist import govt_assist
+from raw_data_clean.crop_info_op import crop_info_op
 
 
 gen_info_cleaner()
@@ -27,4 +29,6 @@ gender_decs_making()
 gender_crop_cult()
 info_ranking()
 reliab_rank()
-proact_measures()
+# proact_measures()
+# govt_assist()
+crop_info_op()

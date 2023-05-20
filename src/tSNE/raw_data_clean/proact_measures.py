@@ -44,9 +44,17 @@ def proact_measures():
 
         # cleaning ctive measure columnn
         df["proac_mea"] = df["proac_mea"].str.strip().str.lower()
-        pd.Series(df["proac_mea"].unique()).to_csv(interim_file)
+        # pd.Series(df["proac_mea"].unique()).to_csv(interim_file)
         # print(df["proac_mea"].unique())
         # print(df["proac_mea"].nunique())
+
+        # renamimg variables
+        df.rename(
+            cplumns={
+                "ad_proac_mea": "adopted_proact_measures",
+                "proac_mea": "proact_measure",
+            }
+        )
 
         check_duplicates(df=df, index_cols=[], master_check=True, write_file=True)
 
