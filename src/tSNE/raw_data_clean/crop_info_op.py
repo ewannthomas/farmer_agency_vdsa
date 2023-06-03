@@ -266,7 +266,7 @@ def crop_info_op():
             },
         )
 
-        print(df)
+        # print(df)
 
         df.to_csv(interim_file, index=False)
 

@@ -14,6 +14,15 @@ from raw_data_clean.reliab_rank import reliab_rank
 from raw_data_clean.proact_measures import proact_measures
 from raw_data_clean.govt_assist import govt_assist
 from raw_data_clean.crop_info_op import crop_info_op
+from raw_data_clean.cult_inputs import cult_inputs
+from raw_data_clean.consum_expend import consum_expend
+from raw_data_clean.fin_transacts import fin_transacts
+from raw_data_clean.loans import loans
+from raw_data_clean.products_sold import products_sold
+from raw_data_clean.sales_purchase import sales_purchase
+from raw_data_clean.govt_dev_progs import govt_dev_progs
+from raw_data_clean.building import building
+from raw_data_clean.coping_mech import coping_mech
 
 
 gen_info_cleaner()
@@ -32,3 +41,12 @@ reliab_rank()
 # proact_measures()
 # govt_assist()
 crop_info_op()
+cult_inputs()
+consum_expend()
+fin_transacts()
+loans()
+products_sold()
+sales_purchase()
+govt_dev_progs()
+building()
+coping_mech()

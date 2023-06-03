@@ -37,7 +37,7 @@ def data_wrangler(
             print(file["path"].stem, file["region"], file["year"])
         print("Halting Process")
 
-    elif len(raw_paths_list) == 10:
+    elif len(raw_paths_list) >= 10:
         raw_data_list = []
 
         for file in raw_paths_list:

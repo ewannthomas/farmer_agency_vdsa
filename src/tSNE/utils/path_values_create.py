@@ -111,9 +111,9 @@ def path_values_create(tag: str, region_folder_position: int):
 
     elif tag == "Govt_dev_progs_benefits":
         patterns = [
-            f"*/*/*/govt_dev*.xlsx",
+            f"*/*/ges/Govt_dev*.xlsx",
             f"*/*/*/Ben_govt_*.xlsx",
-            f"*/2013/ges/gov*.xlsx",
+            f"*/2013/ges/Gov*.xlsx",
         ]
 
     elif tag == "Farm_Equipment":
@@ -122,6 +122,12 @@ def path_values_create(tag: str, region_folder_position: int):
             f"*/*/*/Farm_equpment.xlsx",
             f"*/*/*/{tag}.xlsx",
             "*/*/*/*.Farm_equipment.xlsx",
+        ]
+    elif tag == "Prod_Sold":
+        patterns = [
+            f"*/*/*/*.{tag}.xlsx",
+            f"*/*/*/{tag}.xlsx",
+            "*/*/*/Prod_Sold-10.xlsx",
         ]
 
     else:
