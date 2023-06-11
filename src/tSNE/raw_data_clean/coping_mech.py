@@ -5,7 +5,7 @@ from utils.check_duplicates import check_duplicates
 from utils.widen_frame import widen_frame
 import pandas as pd
 import numpy as np
-import json
+import re
 
 
 def coping_mech():
@@ -129,6 +129,17 @@ def coping_mech():
         }
 
         df["ado_co_me"] = df["ado_co_me"].replace(adopt_map)
+
+        # There are 3 households with misisng ado_co_me. replacing the nan with "adopted"
+        conds = [
+            (
+                df["hh_id"].isin(["IOR14D0001", "IOR14D0009", "IOR14D0034"])
+                & df["ado_co_me"].isna()
+            )
+        ]
+        opts = ["adopted"]
+        df["ado_co_me"] = np.select(conds, opts, default=df["ado_co_me"])
+
         # print(df["ado_co_me"].unique())
 
         # cleaning other coping mechanism string values
@@ -235,12 +246,11 @@ def coping_mech():
         # removing duplicates
         df.drop_duplicates(inplace=True)  # manually verified. removes 26 observations
 
+        ####### DF_COP subset for coping mechanism
+
+        # for the sake of widening we are recreating more cop_mech columns. We faced duplicates when the same household faced two different calamitoes belonging to the same category.
         # adding duplicate-look alike cop_mechs as mech 4, 5, 6 etc
-
-        # df_dups = df[
-        #     df.duplicated(subset=["hh_id", "ado_co_me", "problem"], keep=False)
-        # ]
-
+        # so we rae creating a new subset with coping mechanisms and a subset with aggregated loss percentages and losses for each category of calamity
         df_cop = df.melt(
             id_vars=["hh_id", "ado_co_me", "problem"],
             value_vars=cols,
@@ -248,32 +258,85 @@ def coping_mech():
             value_name="cop_value",
         )
 
+        df_cop["cop"] = df_cop["cop"].str.strip().str.lower()
+
+        # male regex catch
+        # male_catch = re.compile("cop_mech_m.\d")
+        # female_catch = re.compile("cop_mech_f.\d")
+
         df_cop["gender"] = np.where(
-            df_cop["cop"].str.contains("cop_mech_m"),
+            df_cop["cop"].str.contains("co_mech_m"),
             "m",
-            np.where(df_cop["cop"].str.contains("cop_mech_"), "f", ""),
+            np.where(df_cop["cop"].str.contains("co_mech_f"), "f", ""),
         )
 
-        # df_dups["count"] = (
-        #     df_dups.groupby(["hh_id", "ado_co_me", "problem"])["hh_id"]
-        #     .cumcount()
-        #     .reset_index(drop=True)
-        # )
+        df_cop = df_cop.sort_values(by=["hh_id", "ado_co_me", "problem", "cop"])
 
-        print(df_cop)
+        df_cop["count"] = (
+            df_cop.groupby(
+                ["hh_id", "ado_co_me", "problem", "gender"],
+            )["hh_id"].cumcount()
+            # .reset_index(drop=True)
+        ) + 1  # we add a value 1 to cumulative count because cummulative count starts with 0, and we need it to start from 1
 
-        # check_duplicates(
-        #     df=df,
-        #     index_cols=["hh_id", "ado_co_me", "problem"],
-        #     master_check=False,
-        #     write_file=True,
-        # )
+        df_cop["count"] = df_cop["count"].astype(str).str.replace(".0", "")
+        df_cop["cop_mech"] = (
+            "cop_mech_" + df_cop["gender"] + df_cop["count"]
+        )  # here we create a new
 
-        # df = widen_frame(df=df, index_cols=["hh_id", "ado_co_me", "problem"])
+        df_cop.drop(["cop", "gender", "count"], axis=1, inplace=True)
+
+        # pivoting the cop_mech column
+
+        df_cop = df_cop.pivot(
+            index=["hh_id", "ado_co_me", "problem"],
+            columns="cop_mech",
+            values="cop_value",
+        ).reset_index()
+
+        # dropping columns with all nan values
+        df_cop.dropna(axis=1, how="all", inplace=True)
+
+        check_duplicates(
+            df=df_cop,
+            index_cols=["hh_id", "ado_co_me", "problem", "cop_mech"],
+            master_check=False,
+            write_file=True,
+        )
+
+        ####### DF_LOSS subset for losses
+
+        df_loss = (
+            df.groupby(["hh_id", "ado_co_me", "problem"])
+            .agg({"percent_of_income_lost": "sum", "losses_in_rupees": "sum"})
+            .reset_index()
+        )
+
+        check_duplicates(
+            df=df_loss,
+            index_cols=["hh_id", "ado_co_me", "problem"],
+            master_check=False,
+            write_file=True,
+        )
+
+        # merging to arrive at the original data
+        df = pd.merge(
+            left=df_cop,
+            right=df_loss,
+            on=["hh_id", "ado_co_me", "problem"],
+            how="outer",
+            validate="1:1",
+            indicator=False,
+        )  # manually verified,  100% match
 
         # print(df)
+        # print(df["_merge"].value_counts())
 
-        # df.to_csv(interim_file, index=False)
+        df = widen_frame(df=df, index_cols=["hh_id", "ado_co_me", "problem"])
+
+        print(df)
+
+        df.to_csv(interim_file, index=False)
 
     else:
         print(f"{tag} interim file exists")

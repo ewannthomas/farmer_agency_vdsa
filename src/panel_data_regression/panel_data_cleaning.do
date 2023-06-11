@@ -2,7 +2,7 @@ clear
 
 
 *Defining directories
-	local dir "C:\Work ISB\projects\frer"
+	local dir "D:\work_isb\projects\frer"
 	local interim_folder "`dir'\data\interim"
 	local cleaned_folder "`interim_folder'\cleaned"
 	local reduced_folder "`interim_folder'\reduced"

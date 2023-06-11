@@ -48,6 +48,9 @@ def cult_inputs():
             remove_cols=remove_cols,
         )
 
+        # making the date column correct
+        df["sur_mon_yr"] = pd.to_datetime(df["sur_mon_yr"], format="%m/%y")
+
         # cleaning categorical variables
         # cleaning lab_type
         lab_type_mapping = {
@@ -102,21 +105,21 @@ def cult_inputs():
         df.rename(columns={"val_mat": "material_cost"}, inplace=True)
 
         # widening the frame
-        df = widen_frame(
-            df=df,
-            index_cols=["hh_id", "plot_code", "season", "operation"],
-            wide_cols=["labour_cost", "material_cost"],
-            agg_dict={"labour_cost": "sum", "material_cost": "sum"},
-        )
-
-        # check_duplicates(
+        # df = widen_frame(
         #     df=df,
-        #     index_cols=["hh_id", "plot_code", "season", "operation"],
-        #     master_check=True,
-        #     write_file=True,
+        #     index_cols=["hh_id","sur_mon_yr", "plot_code", "season", "operation"],
+        #     wide_cols=["labour_cost", "material_cost"],
+        #     agg_dict={"labour_cost": "sum", "material_cost": "sum"},
         # )
 
-        df.to_csv(interim_file, index=False)
+        check_duplicates(
+            df=df,
+            index_cols=["hh_id", "sur_mon_yr", "plot_code", "season", "operation"],
+            master_check=True,
+            write_file=True,
+        )
+
+        # df.to_csv(interim_file, index=False)
 
     else:
         print(f"{tag} interim file exists")

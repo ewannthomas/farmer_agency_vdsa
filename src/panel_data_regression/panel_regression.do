@@ -2,7 +2,7 @@ clear
 
 
 *Defining directories
-	local dir "C:\Work ISB\projects\frer"
+	local dir "D:\work_isb\projects\frer"
 	
 	local processed_folder "`dir'\data\processed"
 	local result_folder "`dir'\results\panel_data_regression"

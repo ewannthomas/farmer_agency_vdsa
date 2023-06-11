@@ -1,5 +1,7 @@
 from utils.dir_values import dir_values
 from utils.data_wrangler import data_wrangler
+from utils.to_float import to_float
+from utils.hh_id_create import hh_id_create
 import pandas as pd
 import numpy as np
 
@@ -49,7 +51,30 @@ def gen_info_cleaner():
             remove_cols=remove_cols,
         )
 
-        # blanet processes for string cols
+        # converting numeric columns to floats
+        df = to_float(
+            df=df,
+            cols=[
+                "family_size",
+                "oper_holding",
+                "when_head",
+                "when_head_dry",
+                "dry_rate",
+                "when_head_irri",
+                "irri_rate",
+                "val_resi_plot",
+                "no_animals",
+                "val_animals",
+                "val_farm_impl",
+                "val_ot_assets",
+                "cash_rec",
+                "loan_rec",
+                "distance",
+                "year_immi",
+            ],
+        )
+
+        # blanket processes for string cols
         col_list = df.columns
 
         selected_cols = [
@@ -75,12 +100,6 @@ def gen_info_cleaner():
 
             if col in selected_cols:
                 df[col] = df[col].str.title().str.replace(" ", "_")
-
-        temp_file_path = interim_path.joinpath("temp.csv")
-        df.to_csv(temp_file_path, index=False)
-        df = pd.read_csv(temp_file_path)
-
-        temp_file_path.unlink()
 
         for col in special_cols:
             df[col] = df[col].str.title().str.replace("_", " ")
@@ -118,6 +137,10 @@ def gen_info_cleaner():
         options = ["SBC/SEBC/EBC", "OBC"]
 
         df["caste_group"] = np.select(conds, options, default=df["caste_group"])
+
+        df = hh_id_create(df=df)
+
+        print(df)
 
         df.to_csv(interim_file, index=False)
 

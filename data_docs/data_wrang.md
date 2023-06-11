@@ -20,7 +20,17 @@ Basic wrangling exercises include:
 
 - Removing columns with all the entires as missing values.
 
-### 1. General Endowments Schedule
+### 1. General Endowments Schedule (GES)
+
+#### Household Information
+
+In this section of the GES schedule, the enumerators collect information which provides an overview of the household, such as location, land owned, lamnd irrigated, demographics, asset position etc. 
+
+After exercising the basic wrangling measures, we identified all the numeric columns which had empty string vlues  like trailing spaces, unencessary spaces among characters or digits. Owing to the presence of these non numeric values, these columns were initially identified and read as string columns by the Pandas `read_excel`fucntion. These columns were converetd to floats. 
+
+Similarly, the string columns were identified and cleansed of trailing spaces and other non alpha numeric values whcih rendered them difficult to interpret. 
+
+The columns `caste, religion` were recoded contained rogue strings, which were either created by errors at the time of information entry by the enumerator while on field or other unidentified sources. These rogue values are problematic when present in string columns which are essentially categorical and as per the schedule, they have fixed set of values which are considered valid. Hence, these rogue string values, whcih sometimes are directly relatable or not, have to mapped to the values or categories mentioned in the schedule. This is achieved either by creating a Python dictionary with the rogue value as the `key` and its corresponding match from the schedule as the `value`. When the numder of rogue strings are relatively low, we define the dictionary within the script itself. However, when the count of rogue strings are large and may possibly wreck the script, a separate JSON file with a suitable name is craeted and called in as a dictionary to perform the mapping exercise. 
 
 #### 1.1 Household Member Schedule (VDSA – C)
 
@@ -508,70 +518,76 @@ After implementing the basic wrangling measures, the `problem` column describing
 - Climate Others
 - Others
 
-The binary columns `ado_co_me`, mentioning whether the household adopted any coping mechanism when faced with adversity, was recoded to reflect binary choices as "adopted" and "not_adopted".
+The binary columns `ado_co_me`, mentioning whether the household adopted any coping mechanism when faced with adversity, was recoded to reflect binary choices as "adopted" and "not_adopted". Under the same column, there are 3 households, namely, `IOR14D0001, IOR14D0009, IOR14D0034` which has adopted multiple coping mechanisms. However, these households have `ado_co_me` as missing while they have multiple coping mechanisms mentioned. So the "adopted" string was extrtapolated for these households. If they are left as missing, it will generate as duplicate entries later in the process.
 
 This dataset had special issue stemming from the East India subset where for years 2010 and 2011 in states Bihar, Jharkhand and Orissa where the household ID is mispelt as the succedding `hh_id`. Eg: in 2010 for a household in Orissa, the `hh_id` must look like "IOR10xxxx". Instead, the ID appeared here as "IOR11xxxx" which is essentially ID for the same household but in year 2011. This issue was rectified.
 
 The coping mechnanisms were mapped to the strings mentioned in the schedule. The columns `loss_prctc_inc` and `loss_rs` were renamed to `percent_of_income_lost` and `losses_in_rupees` respectively for better clarity.
 
 When checked for duplicate entries across all columns, we found the following 52 entries:
-| sur_yr | hh_id      | affected | ado_co_me   | problem               | percent_of_income_lost | co_mech_m1          | co_mech_m2          | co_mech_m3 | co_mech_f1          | co_mech_f2          | co_mech_f3 | losses_in_rupees | dups |
+| sur_yr | hh_id | affected | ado_co_me | problem | percent_of_income_lost | co_mech_m1 | co_mech_m2 | co_mech_m3 | co_mech_f1 | co_mech_f2 | co_mech_f3 | losses_in_rupees | dups |
 |--------|------------|----------|-------------|-----------------------|------------------------|---------------------|---------------------|------------|---------------------|---------------------|------------|------------------|------|
-| 2010   | IKN10C0002 | Yes      | not_adopted | Climate Flood Drought |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0002 | Yes      | not_adopted | Climate Flood Drought |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0002 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0002 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0002 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0002 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0002 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0002 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0030 | Yes      | not_adopted | Climate Flood Drought |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0030 | Yes      | not_adopted | Climate Flood Drought |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0030 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0030 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0030 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0030 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0030 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0030 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0032 | Yes      | not_adopted | Climate Flood Drought |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0032 | Yes      | not_adopted | Climate Flood Drought |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0032 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0032 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0032 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0032 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0032 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0032 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0040 | Yes      | not_adopted | Climate Flood Drought |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0040 | Yes      | not_adopted | Climate Flood Drought |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0040 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0040 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0040 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0040 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0040 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0040 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0048 | Yes      | not_adopted | Climate Flood Drought |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0048 | Yes      | not_adopted | Climate Flood Drought |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0048 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0048 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0048 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0048 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0048 | Yes      | not_adopted | Anthropogenic         |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IKN10C0048 | Yes      | not_adopted | Biophysical           |                        |                     |                     |            |                     |                     |            |                  | TRUE |
-| 2010   | IMP10A0030 | Yes      | adopted     | Biophysical           | 10                     | cash loans          | own savings         |            | cash loans          | own savings         |            |                  | TRUE |
-| 2010   | IMP10A0030 | Yes      | adopted     | Biophysical           | 10                     | cash loans          | own savings         |            | cash loans          | own savings         |            |                  | TRUE |
-| 2011   | IMP11A0055 | Yes      | adopted     | Biophysical           | 10                     | own savings         | cash loans          |            | own savings         | help from relatives |            |                  | TRUE |
-| 2011   | IMP11A0055 | Yes      | adopted     | Biophysical           | 10                     | own savings         | cash loans          |            | own savings         | help from relatives |            |                  | TRUE |
-| 2013   | IMP13B0035 | Y        | adopted     | Biophysical           | 10                     | help from relatives |                     |            | help from relatives |                     |            |                  | TRUE |
-| 2013   | IMP13B0035 | Y        | adopted     | Biophysical           | 10                     | help from relatives |                     |            | help from relatives |                     |            |                  | TRUE |
-| 2014   | IMP14B0050 | Y        | adopted     | Biophysical           | 10                     | own savings         | help from relatives |            | own savings         | help from relatives |            |                  | TRUE |
-| 2014   | IMP14B0050 | Y        | adopted     | Biophysical           | 10                     | own savings         | help from relatives |            | own savings         | help from relatives |            |                  | TRUE |
-| 2010   | IBH10C0036 | Y        | adopted     | Climate Flood Drought | 20                     | own savings         | help from relatives |            | own savings         | help from relatives |            | 2000             | TRUE |
-| 2010   | IBH10C0036 | Y        | adopted     | Climate Flood Drought | 20                     | own savings         | help from relatives |            | own savings         | help from relatives |            | 2000             | TRUE |
-| 2010   | IBH10C0045 | Y        | adopted     | Climate Flood Drought | 20                     | help from relatives | own savings         |            | help from relatives | own savings         |            | 3000             | TRUE |
-| 2010   | IBH10C0045 | Y        | adopted     | Climate Flood Drought | 20                     | help from relatives | own savings         |            | help from relatives | own savings         |            | 3000             | TRUE |
+| 2010 | IKN10C0002 | Yes | not_adopted | Climate Flood Drought | | | | | | | | | TRUE |
+| 2010 | IKN10C0002 | Yes | not_adopted | Climate Flood Drought | | | | | | | | | TRUE |
+| 2010 | IKN10C0002 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0002 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0002 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0002 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0002 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0002 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0030 | Yes | not_adopted | Climate Flood Drought | | | | | | | | | TRUE |
+| 2010 | IKN10C0030 | Yes | not_adopted | Climate Flood Drought | | | | | | | | | TRUE |
+| 2010 | IKN10C0030 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0030 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0030 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0030 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0030 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0030 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0032 | Yes | not_adopted | Climate Flood Drought | | | | | | | | | TRUE |
+| 2010 | IKN10C0032 | Yes | not_adopted | Climate Flood Drought | | | | | | | | | TRUE |
+| 2010 | IKN10C0032 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0032 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0032 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0032 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0032 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0032 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0040 | Yes | not_adopted | Climate Flood Drought | | | | | | | | | TRUE |
+| 2010 | IKN10C0040 | Yes | not_adopted | Climate Flood Drought | | | | | | | | | TRUE |
+| 2010 | IKN10C0040 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0040 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0040 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0040 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0040 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0040 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0048 | Yes | not_adopted | Climate Flood Drought | | | | | | | | | TRUE |
+| 2010 | IKN10C0048 | Yes | not_adopted | Climate Flood Drought | | | | | | | | | TRUE |
+| 2010 | IKN10C0048 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0048 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0048 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IKN10C0048 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0048 | Yes | not_adopted | Anthropogenic | | | | | | | | | TRUE |
+| 2010 | IKN10C0048 | Yes | not_adopted | Biophysical | | | | | | | | | TRUE |
+| 2010 | IMP10A0030 | Yes | adopted | Biophysical | 10 | cash loans | own savings | | cash loans | own savings | | | TRUE |
+| 2010 | IMP10A0030 | Yes | adopted | Biophysical | 10 | cash loans | own savings | | cash loans | own savings | | | TRUE |
+| 2011 | IMP11A0055 | Yes | adopted | Biophysical | 10 | own savings | cash loans | | own savings | help from relatives | | | TRUE |
+| 2011 | IMP11A0055 | Yes | adopted | Biophysical | 10 | own savings | cash loans | | own savings | help from relatives | | | TRUE |
+| 2013 | IMP13B0035 | Y | adopted | Biophysical | 10 | help from relatives | | | help from relatives | | | | TRUE |
+| 2013 | IMP13B0035 | Y | adopted | Biophysical | 10 | help from relatives | | | help from relatives | | | | TRUE |
+| 2014 | IMP14B0050 | Y | adopted | Biophysical | 10 | own savings | help from relatives | | own savings | help from relatives | | | TRUE |
+| 2014 | IMP14B0050 | Y | adopted | Biophysical | 10 | own savings | help from relatives | | own savings | help from relatives | | | TRUE |
+| 2010 | IBH10C0036 | Y | adopted | Climate Flood Drought | 20 | own savings | help from relatives | | own savings | help from relatives | | 2000 | TRUE |
+| 2010 | IBH10C0036 | Y | adopted | Climate Flood Drought | 20 | own savings | help from relatives | | own savings | help from relatives | | 2000 | TRUE |
+| 2010 | IBH10C0045 | Y | adopted | Climate Flood Drought | 20 | help from relatives | own savings | | help from relatives | own savings | | 3000 | TRUE |
+| 2010 | IBH10C0045 | Y | adopted | Climate Flood Drought | 20 | help from relatives | own savings | | help from relatives | own savings | | 3000 | TRUE |
 
+Later when checked for duplicates across columns `hh_id, ado_cop_me, problem` we found 184 duplicates. However, these entires are result of the fact that we recoded various calamities in `problem` into few categories. So the same houshepld which faced two separate calamities with different amount of losses are now popping up as duplicates. To resolve the above situation we adopted the following steps:
 
-Later when checked for duplicates across columns `hh_id, ado_cop_me, problem` we found 184 duplicates. However, these entires are result of the fact that we recoded various calamities in `problem` into few categories. So the same houshepld which faced two separate calamities with different amount of losses are now popping up as duplicates. So, we grouped the dataset across the mentioned column   
+- We split the data into 2 parts: `df_cop`: which contains the hosuehold id and the coping mechanisms, `df_loss`: which contains the household id and losses. Both these parts contain the `ado_co_me`, `problem` columns as categories (part of data frame index when needed).
+- For `df_cop`, the original data had 3 coping mechanisms for men and women, each. However, there is no requirement to stick to this. So we decided to consider the coping mechanisms adopted for two or more calamities in the same category (e.g.: Anthropogenic) as one instance and consider the adopted measures int he same order. For instance hosuehold x faced 2 calamities (y,z) belonging to Anthropogenic category. For calamity y, the women of the household adopted 3 mechanisms and men adopted 1 mechanism. For calamity z, the women adopted 2 mechanism and men adopted 3 mechanism. The data would consider, y and z as the same event and woukld take into account 5 mechanisms from the women and 4 mechanism from men.
+- In case of `df_loss`, the when the houshold faces two or more calamities of the same category, the `percent_of_income_lost` and `losses_in_rupees` were aggregated across groups of `hh_id, ado_co_me, problem`.
+- `df_cop` and `df_loss` were merged to arrive at the restructed version of the original dataframe.
+
+Post merging, the data was widened for further processing.
 
 ##### 1.10.2 Government assistance
 
