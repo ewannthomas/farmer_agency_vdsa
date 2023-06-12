@@ -3,6 +3,7 @@ from utils.data_wrangler import data_wrangler
 from utils.to_float import to_float
 from utils.check_duplicates import check_duplicates
 from utils.widen_frame import widen_frame
+from utils.long_frame import long_frame
 import pandas as pd
 import numpy as np
 import json
@@ -69,6 +70,13 @@ def reliab_rank():
             master_check=False,
             write_file=False,
         )  # there are 6 dups here. they have been dealt with in the widen_frame function
+
+        # exporting long dataframe
+        long_frame(
+            tag=tag,
+            df=df,
+            cols=["reliab_rank_in_flood", "reliab_rank_in_drought"],
+        )
 
         df = widen_frame(
             df=df,

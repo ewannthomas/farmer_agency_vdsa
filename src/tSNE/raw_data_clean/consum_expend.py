@@ -3,6 +3,7 @@ from utils.data_wrangler import data_wrangler
 from utils.to_float import to_float
 from utils.check_duplicates import check_duplicates
 from utils.widen_frame import widen_frame
+from utils.long_frame import long_frame
 import pandas as pd
 import numpy as np
 import json
@@ -132,6 +133,7 @@ def consum_expend():
                     df.groupby(
                         [
                             "hh_id",
+                            "sur_yr",
                             "sur_mon_yr",
                         ]
                     )["nf_tot_val"]
@@ -261,6 +263,7 @@ def consum_expend():
                     df.groupby(
                         [
                             "hh_id",
+                            "sur_yr",
                             "sur_mon_yr",
                             "item_type",
                         ]
@@ -273,6 +276,10 @@ def consum_expend():
 
         # concatenating the datasets
         df = pd.concat(data_holder_list, axis=0)
+
+        # exporting long dataframe
+        long_frame(tag="consumption_expenditure", df=df)
+
         df = widen_frame(
             df=df,
             index_cols=["hh_id", "sur_mon_yr", "item_type"],

@@ -1,6 +1,8 @@
 from utils.dir_values import dir_values
 from utils.data_wrangler import data_wrangler
 from utils.to_float import to_float
+from utils.widen_frame import widen_frame
+from utils.long_frame import long_frame
 import pandas as pd
 import numpy as np
 
@@ -445,7 +447,7 @@ def assests_liabs():
         df_int["interest"] = df_int["amount"] * (df_int["interest"] / 100)
 
         df_int = (
-            df_int.groupby(["hh_id", "category", "source", "purpose"])
+            df_int.groupby(["hh_id", "sur_yr", "category", "source", "purpose"])
             .agg({"amount": "sum", "duration": "max", "interest": "sum"})
             .reset_index()
         )
@@ -458,39 +460,28 @@ def assests_liabs():
 
         df = pd.concat([df, df_int], axis=0)
 
-        # df["dups"] = df.duplicated(
-        #     subset=[
-        #         "hh_id",
-        #         "category",
-        #         "source",
-        #         "purpose"
-        #         # "amount",
-        #         # "duration",
-        #         # "interest",
-        #     ],
-        #     keep=False,
-        # )  # these dups have been manually verified
-
-        # print(df['dups'].value_counts())
-
-        df["id"] = df["category"] + "_" + df["source"] + "_" + df["purpose"]
-        df.drop(["category", "source", "purpose"], axis=1, inplace=True)
-
-        df = df.melt(
-            id_vars=["hh_id", "id"],
-            value_vars=["amount", "duration", "interest"],
-            var_name="tag",
-            value_name="value",
+        # exporting long dataframe
+        long_frame(
+            tag=tag,
+            df=df,
+            cols=[
+                "amount",
+                "duration",
+                "interest",
+            ],
         )
-        df["id"] = df["id"] + "_" + df["tag"]
 
-        df = df.pivot(
-            index=["hh_id"],
-            columns="id",
-            values="value",
-        ).reset_index()
-        #     .melt(id_vars="index", value_vars=[])
-        # )
+        df = widen_frame(
+            df=df,
+            index_cols=["hh_id", "category", "source", "purpose"],
+            wide_cols=[
+                "amount",
+                "duration",
+                "interest",
+            ],
+        )
+
+        # print(df)
 
         df.to_csv(interim_file, index=False)
 

@@ -3,6 +3,9 @@ from utils.data_wrangler import data_wrangler
 from utils.to_float import to_float
 from utils.check_duplicates import check_duplicates
 from utils.widen_frame import widen_frame
+from utils.long_frame import long_frame
+
+# from utils.hh_id_create import hh_id_create
 import pandas as pd
 import numpy as np
 import json
@@ -124,7 +127,7 @@ def building():
         df_build_value = (
             df[df["item_building"] == "Residential House"]
             .melt(
-                id_vars="hh_id",
+                id_vars=["hh_id", "sur_yr"],
                 value_vars="building_value",
                 var_name="item_building",
                 value_name="value",
@@ -161,12 +164,17 @@ def building():
         )  # manually verified and removed only one obs
         # print(df.shape)
 
+        # df = hh_id_create(df)
+
         check_duplicates(
             df=df,
-            index_cols=["hh_id", "item_building"],
+            index_cols=["hh_id", "sur_yr", "item_building"],
             master_check=False,
             write_file=True,
         )  # manually verified. One observation removed.
+
+        # exporting long dataframe
+        long_frame(tag=tag, df=df)
 
         df = widen_frame(df=df, index_cols=["hh_id", "item_building"])
 

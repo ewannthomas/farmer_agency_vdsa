@@ -3,6 +3,7 @@ from utils.data_wrangler import data_wrangler
 from utils.to_float import to_float
 from utils.check_duplicates import check_duplicates
 from utils.widen_frame import widen_frame
+from utils.long_frame import long_frame
 import pandas as pd
 import numpy as np
 import json
@@ -241,6 +242,21 @@ def crop_info_op():
             ],
             master_check=False,
             write_file=False,
+        )
+
+        # exporting long dataframe
+        long_frame(
+            tag=tag,
+            df=df,
+            cols=[
+                "prct_area",
+                "op_main_prod_qty",
+                "op_by_prod_qty",
+                "op_ot_prod_qty",
+                "op_main_prod_rate",
+                "op_by_prod_rate",
+                "op_ot_prod_rate",
+            ],
         )
 
         df = widen_frame(

@@ -11,7 +11,7 @@ def data_wrangler(
     remove_cols: list,
 ):
     """
-    This function wrangles the data file supplied via path. It performs aset of predefined actions necessary for appending the various files spread across years.
+    This function wrangles the data file supplied via path. It performs a set of predefined actions necessary for appending the various files spread across years.
     Parameters:
 
     tag: A string value enabling in identifying the exact location of the file to be wrangled using the path_values_create method defined under the VdsaMicrotSNE class.

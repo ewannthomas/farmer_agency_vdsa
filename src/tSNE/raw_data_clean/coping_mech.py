@@ -3,6 +3,7 @@ from utils.data_wrangler import data_wrangler
 from utils.to_float import to_float
 from utils.check_duplicates import check_duplicates
 from utils.widen_frame import widen_frame
+from utils.long_frame import long_frame
 import pandas as pd
 import numpy as np
 import re
@@ -252,7 +253,7 @@ def coping_mech():
         # adding duplicate-look alike cop_mechs as mech 4, 5, 6 etc
         # so we rae creating a new subset with coping mechanisms and a subset with aggregated loss percentages and losses for each category of calamity
         df_cop = df.melt(
-            id_vars=["hh_id", "ado_co_me", "problem"],
+            id_vars=["hh_id", "sur_yr", "ado_co_me", "problem"],
             value_vars=cols,
             var_name="cop",
             value_name="cop_value",
@@ -274,7 +275,7 @@ def coping_mech():
 
         df_cop["count"] = (
             df_cop.groupby(
-                ["hh_id", "ado_co_me", "problem", "gender"],
+                ["hh_id", "sur_yr", "ado_co_me", "problem", "gender"],
             )["hh_id"].cumcount()
             # .reset_index(drop=True)
         ) + 1  # we add a value 1 to cumulative count because cummulative count starts with 0, and we need it to start from 1
@@ -289,7 +290,7 @@ def coping_mech():
         # pivoting the cop_mech column
 
         df_cop = df_cop.pivot(
-            index=["hh_id", "ado_co_me", "problem"],
+            index=["hh_id", "sur_yr", "ado_co_me", "problem"],
             columns="cop_mech",
             values="cop_value",
         ).reset_index()
@@ -307,7 +308,7 @@ def coping_mech():
         ####### DF_LOSS subset for losses
 
         df_loss = (
-            df.groupby(["hh_id", "ado_co_me", "problem"])
+            df.groupby(["hh_id", "sur_yr", "ado_co_me", "problem"])
             .agg({"percent_of_income_lost": "sum", "losses_in_rupees": "sum"})
             .reset_index()
         )
@@ -323,7 +324,7 @@ def coping_mech():
         df = pd.merge(
             left=df_cop,
             right=df_loss,
-            on=["hh_id", "ado_co_me", "problem"],
+            on=["hh_id", "sur_yr", "ado_co_me", "problem"],
             how="outer",
             validate="1:1",
             indicator=False,
@@ -332,9 +333,12 @@ def coping_mech():
         # print(df)
         # print(df["_merge"].value_counts())
 
+        # exporting long dataframe
+        long_frame(tag=tag, df=df)
+
         df = widen_frame(df=df, index_cols=["hh_id", "ado_co_me", "problem"])
 
-        print(df)
+        # print(df)
 
         df.to_csv(interim_file, index=False)
 

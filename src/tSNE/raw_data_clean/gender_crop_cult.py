@@ -3,6 +3,7 @@ from utils.data_wrangler import data_wrangler
 from utils.to_float import to_float
 from utils.check_duplicates import check_duplicates
 from utils.widen_frame import widen_frame
+from utils.long_frame import long_frame
 import pandas as pd
 import numpy as np
 import json
@@ -168,6 +169,9 @@ def gender_crop_cult():
         # replacing * with 1
         for col in ["men", "women", "men_women"]:
             df[col] = df[col].str.strip().str.replace("*", "1")
+
+        # exporting long dataframe
+        long_frame(tag=tag, df=df)
 
         # widening the data frame
         df = widen_frame(df=df, index_cols=["hh_id", "activity"])

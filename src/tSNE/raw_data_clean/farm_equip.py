@@ -2,6 +2,7 @@ from utils.dir_values import dir_values
 from utils.data_wrangler import data_wrangler
 from utils.to_float import to_float
 from utils.widen_frame import widen_frame
+from utils.long_frame import long_frame
 import pandas as pd
 import numpy as np
 import json
@@ -58,6 +59,13 @@ def farm_equip():
                 "item_qty": "farm_equip_qty",
             },
             inplace=True,
+        )
+
+        # exporting long dataframe
+        long_frame(
+            tag=tag,
+            df=df,
+            cols=["farm_equip_qty", "horse_power", "farm_equipment_present_value"],
         )
 
         df = widen_frame(

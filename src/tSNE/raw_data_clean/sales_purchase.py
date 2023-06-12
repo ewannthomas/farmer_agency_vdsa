@@ -3,6 +3,7 @@ from utils.data_wrangler import data_wrangler
 from utils.to_float import to_float
 from utils.check_duplicates import check_duplicates
 from utils.widen_frame import widen_frame
+from utils.long_frame import long_frame
 import pandas as pd
 import numpy as np
 import json
@@ -188,6 +189,9 @@ def sales_purchase():
         df_sold["pur_sold"] = "sold"
 
         df = pd.concat([df_pur, df_sold], axis=0).reset_index(drop=True)
+
+        # exporting long dataframe
+        long_frame(tag=tag, df=df, cols=["market_cost", "dist_to_market", "quantity"])
 
         df = widen_frame(
             df=df,

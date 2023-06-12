@@ -1,5 +1,6 @@
 import pandas as pd
 from utils.to_float import to_float
+from utils.hh_id_create import hh_id_create
 
 
 def widen_frame(
@@ -21,6 +22,7 @@ def widen_frame(
 
     agg_dict: A dictionary which defines the summary statistic that should be created for each col in the wide_cols list while performing the groupby operation.
     """
+
     if agg_dict != None:
         try:
             # converting expected wide required cols to float
@@ -31,17 +33,26 @@ def widen_frame(
                     raise TypeError
 
             # creating groups using index cols and creating summary stats based on agg_dict
-            if agg_dict != None:
-                df = df.groupby(index_cols).agg(agg_dict).reset_index()
+            index_cols.append(
+                "sur_yr"
+            )  # adding sur_yr to index cols to ensure the presence of year values in the final dataframe
+            df = df.groupby(index_cols).agg(agg_dict).reset_index()
+
+            # creating a new hh_id by isolating the household numer and year values
+            df = hh_id_create(df)
 
             final_wide_cols = []
             for col in index_cols:
-                if col != "hh_id":
+                if col not in ["hh_id", "hh_id_panel", "sur_yr"]:
                     final_wide_cols.append(col)
                     # df[col] = df[col].astype(str).fillna("undefined")
 
             # widening the columns
-            df = df.pivot(index="hh_id", columns=final_wide_cols, values=wide_cols)
+            df = df.pivot(
+                index=["hh_id_panel", "sur_yr"],
+                columns=final_wide_cols,
+                values=wide_cols,
+            )
 
             # renamimg the Multiindex
             level_names = df.columns
@@ -74,8 +85,13 @@ def widen_frame(
 
         wide_cols = [x for x in df.columns if x not in index_cols]
 
+        # creating a new hh_id by isolating the household numer and year values
+        df = hh_id_create(df)
+
         # widening the columns
-        df = df.pivot(index="hh_id", columns=final_wide_cols, values=wide_cols)
+        df = df.pivot(
+            index=["hh_id_panel", "sur_yr"], columns=final_wide_cols, values=wide_cols
+        )
 
         # renamimg the Multiindex
         level_names = df.columns

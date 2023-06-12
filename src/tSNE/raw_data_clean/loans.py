@@ -3,6 +3,7 @@ from utils.data_wrangler import data_wrangler
 from utils.to_float import to_float
 from utils.check_duplicates import check_duplicates
 from utils.widen_frame import widen_frame
+from utils.long_frame import long_frame
 import pandas as pd
 import numpy as np
 import json
@@ -80,6 +81,11 @@ def loans():
         df.rename(
             columns={"loan_rec": "loan_received", "loan_int": "interest_on_loan"},
             inplace=True,
+        )
+
+        # exporting long dataframe
+        long_frame(
+            tag=tag, df=df, cols=["loan_repaid", "loan_received", "interest_on_loan"]
         )
 
         df = widen_frame(

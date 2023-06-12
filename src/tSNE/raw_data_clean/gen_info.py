@@ -2,6 +2,7 @@ from utils.dir_values import dir_values
 from utils.data_wrangler import data_wrangler
 from utils.to_float import to_float
 from utils.hh_id_create import hh_id_create
+from utils.long_frame import long_frame
 import pandas as pd
 import numpy as np
 
@@ -137,6 +138,9 @@ def gen_info_cleaner():
         options = ["SBC/SEBC/EBC", "OBC"]
 
         df["caste_group"] = np.select(conds, options, default=df["caste_group"])
+
+        # exporting long dataframe
+        long_frame(tag=tag, df=df)
 
         df = hh_id_create(df=df)
 
