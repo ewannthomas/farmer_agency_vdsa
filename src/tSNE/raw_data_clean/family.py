@@ -3,6 +3,7 @@ from utils.data_wrangler import data_wrangler
 from utils.check_duplicates import check_duplicates
 from utils.widen_frame import widen_frame
 from utils.long_frame import long_frame
+from utils.to_float import to_float
 import pandas as pd
 import numpy as np
 
@@ -157,6 +158,8 @@ def family_comp():
 
         # For some reason remove_cols is not catching this column. So initiating a specific removal.
         df.drop("relation_ot", axis=1, inplace=True)
+
+        df = to_float(df=df, cols=["relation"])
 
         # exporting long dataframe
         long_frame(tag=tag, df=df)

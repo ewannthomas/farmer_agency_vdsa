@@ -139,7 +139,13 @@ def building():
 
         df_build_value.dropna(axis=0, subset="facility", inplace=True)
 
-        df = pd.concat([df, df_build_value], axis=0)
+        df = (
+            pd.concat([df, df_build_value])
+            .reset_index(drop=True)
+            .sort_values(
+                by=["hh_id", "sur_yr", "item_building"],
+            )
+        )
 
         # removing wide columns from east india
         df.drop(
@@ -176,9 +182,12 @@ def building():
         # exporting long dataframe
         long_frame(tag=tag, df=df)
 
+        # cleaning year columns
+        df = to_float(df=df, cols=["sur_yr"])
+
         df = widen_frame(df=df, index_cols=["hh_id", "item_building"])
 
-        # print(df)
+        print(df)
 
         df.to_csv(interim_file, index=False)
 

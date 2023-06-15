@@ -92,6 +92,7 @@ def widen_frame(
         df = df.pivot(
             index=["hh_id_panel", "sur_yr"], columns=final_wide_cols, values=wide_cols
         )
+        print(df)
 
         # renamimg the Multiindex
         level_names = df.columns

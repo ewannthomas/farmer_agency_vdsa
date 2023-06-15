@@ -67,8 +67,9 @@
   "shopkeeper": "merchants",
   "others(merchants/shopkeeper)": "merchants",
   "others(specify)-shopkeeper": "merchants",
+  "others(hotel owner)": "merchants",
   "others-kirana shop": "merchants",
-  "shgs":"shg",
-  "ngos":"ngo",
-  "ration shop (pds)":"ration shop(pds)"
+  "shgs": "shg",
+  "ngos": "ngo",
+  "ration shop (pds)": "ration shop(pds)"
 }

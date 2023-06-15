@@ -92,7 +92,7 @@ def consum_expend():
 
                 check_duplicates(
                     df=df,
-                    index_cols=["hh_id", "sur_mon_yr", "item_type"],
+                    index_cols=["hh_id", "sur_yr", "sur_mon_yr", "item_type"],
                     master_check=True,
                     write_file=True,
                 )
