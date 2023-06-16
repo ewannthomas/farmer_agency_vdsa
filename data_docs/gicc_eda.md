@@ -1,4 +1,4 @@
-# Feedback Query on Data
+# GICC - Exploratory Data Analysis
 
 The following is the total number of unique households surveyed in each year:
 
@@ -35,3 +35,7 @@ Similarly, in each year we have the following number of households where any mem
 - 2012 : 144
 - 2013 : 145
 - 2014 : 182
+
+# Creating Gender wise summary for GICC
+
+## Merging Family Comp with Info ranking

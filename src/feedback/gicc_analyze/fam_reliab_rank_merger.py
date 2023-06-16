@@ -19,7 +19,7 @@ def reliab_rank():
 
     df["calamity"] = df["calamity"].str.replace("reliab_rank_in_", "")
 
-    print(df)
+    # print(df)
 
     # df = df[df["sur_yr"] == 2010]
 
