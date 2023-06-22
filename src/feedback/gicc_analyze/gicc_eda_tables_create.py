@@ -104,3 +104,223 @@ def count_fem_hh_reliab_rank():
 
     result_file = results_folder.joinpath("count_fem_hh_reliab_rank.csv")
     df.to_csv(result_file, index=False)
+
+
+"""Does access to information and institutions by the household vary by caste of household head?"""
+
+
+def count_caste_info():
+    """Does access to information and institutions by the household vary by caste of household head?"""
+    stata_file_path = interim_path.joinpath("stata_files/gen_info_ranking.csv")
+    results_folder = raw_path.parents[1].joinpath("results/feedback")
+
+    df = pd.read_csv(stata_file_path)
+
+    df = (
+        df[df["rank"] == 1]
+        .groupby(["caste_group", "institutions"])["hh_id_panel"]
+        .nunique()
+    ).reset_index()
+
+    df = df.pivot(
+        index="institutions",
+        columns="caste_group",
+        values="hh_id_panel",
+    ).reset_index()
+
+    result_file = results_folder.joinpath("count_caste_info.csv")
+    df.to_csv(result_file, index=False)
+
+
+def count_caste_info_yr():
+    """Does access to information and institutions by the household vary by caste of household head?"""
+    stata_file_path = interim_path.joinpath("stata_files/gen_info_ranking.csv")
+    results_folder = raw_path.parents[1].joinpath("results/feedback")
+
+    df = pd.read_csv(stata_file_path)
+
+    df = (
+        df[df["rank"] == 1]
+        .groupby(["sur_yr", "caste_group", "institutions"])["hh_id_panel"]
+        .nunique()
+    ).reset_index()
+
+    df = df.pivot(
+        index=["sur_yr", "institutions"],
+        columns="caste_group",
+        values="hh_id_panel",
+    ).reset_index()
+
+    result_file = results_folder.joinpath("count_caste_info_yr.csv")
+    df.to_csv(result_file, index=False)
+
+
+"""Does households belonging to different castes adopt different coping mechanisms?"""
+
+
+def caste_cop_mech_all():
+    """Does households belonging to different castes adopt different coping mechanisms?"""
+
+    """All necessary levels are included. Lengthy table!"""
+    stata_file_path = interim_path.joinpath("stata_files/caste_cop_mech.csv")
+    results_folder = raw_path.parents[1].joinpath("results/feedback")
+
+    df = pd.read_csv(stata_file_path)
+
+    df = (
+        df.groupby(["caste_group", "problem", "adopted_by", "cop_mech"])[
+            "hh_id_panel"
+        ].nunique()
+    ).reset_index()
+
+    df = df.pivot(
+        index=[
+            "caste_group",
+            "problem",
+            "adopted_by",
+        ],
+        columns="cop_mech",
+        values="hh_id_panel",
+    ).reset_index()
+
+    result_file = results_folder.joinpath("count_caste_cop_mech_all.csv")
+    df.to_csv(result_file, index=False)
+
+
+def caste_cop_mech():
+    """Does households belonging to different castes adopt different coping mechanisms?"""
+
+    """All necessary levels are included. Lengthy table!"""
+    stata_file_path = interim_path.joinpath("stata_files/caste_cop_mech.csv")
+    results_folder = raw_path.parents[1].joinpath("results/feedback")
+
+    df = pd.read_csv(stata_file_path)
+
+    df = (
+        df.groupby(["caste_group", "cop_mech"])["hh_id_panel"].nunique()
+    ).reset_index()
+
+    df = df.pivot(
+        index=[
+            "caste_group",
+        ],
+        columns="cop_mech",
+        values="hh_id_panel",
+    ).reset_index()
+
+    result_file = results_folder.joinpath("count_caste_cop_mech.csv")
+    df.to_csv(result_file, index=False)
+
+
+def caste_cop_mech_problem():
+    """Does households belonging to different castes adopt different coping mechanisms?"""
+
+    """All necessary levels are included. Lengthy table!"""
+    stata_file_path = interim_path.joinpath("stata_files/caste_cop_mech.csv")
+    results_folder = raw_path.parents[1].joinpath("results/feedback")
+
+    df = pd.read_csv(stata_file_path)
+
+    df = (
+        df.groupby(["caste_group", "problem", "cop_mech"])["hh_id_panel"].nunique()
+    ).reset_index()
+
+    df = df.pivot(
+        index=[
+            "caste_group",
+            "problem",
+        ],
+        columns="cop_mech",
+        values="hh_id_panel",
+    ).reset_index()
+
+    result_file = results_folder.joinpath("count_caste_cop_mech_problem.csv")
+    df.to_csv(result_file, index=False)
+
+
+def caste_cop_mech_all_yr():
+    """Does households belonging to different castes adopt different coping mechanisms?"""
+
+    """All necessary levels are included. Lengthy table!"""
+    stata_file_path = interim_path.joinpath("stata_files/caste_cop_mech.csv")
+    results_folder = raw_path.parents[1].joinpath("results/feedback")
+
+    df = pd.read_csv(stata_file_path)
+
+    df = (
+        df.groupby(["sur_yr", "caste_group", "problem", "adopted_by", "cop_mech"])[
+            "hh_id_panel"
+        ].nunique()
+    ).reset_index()
+
+    df = df.pivot(
+        index=[
+            "sur_yr",
+            "caste_group",
+            "problem",
+            "adopted_by",
+        ],
+        columns="cop_mech",
+        values="hh_id_panel",
+    ).reset_index()
+
+    result_file = results_folder.joinpath("count_caste_cop_mech_all_yr.csv")
+    df.to_csv(result_file, index=False)
+
+
+def caste_cop_mech_yr():
+    """Does households belonging to different castes adopt different coping mechanisms?"""
+
+    """All necessary levels are included. Lengthy table!"""
+    stata_file_path = interim_path.joinpath("stata_files/caste_cop_mech.csv")
+    results_folder = raw_path.parents[1].joinpath("results/feedback")
+
+    df = pd.read_csv(stata_file_path)
+
+    df = (
+        df.groupby(["sur_yr", "caste_group", "cop_mech"])["hh_id_panel"].nunique()
+    ).reset_index()
+
+    df = df.pivot(
+        index=[
+            "sur_yr",
+            "caste_group",
+        ],
+        columns="cop_mech",
+        values="hh_id_panel",
+    ).reset_index()
+
+    result_file = results_folder.joinpath("count_caste_cop_mech_yr.csv")
+    df.to_csv(result_file, index=False)
+
+
+def caste_cop_mech_problem_yr():
+    """Does households belonging to different castes adopt different coping mechanisms?"""
+
+    """All necessary levels are included. Lengthy table!"""
+    stata_file_path = interim_path.joinpath("stata_files/caste_cop_mech.csv")
+    results_folder = raw_path.parents[1].joinpath("results/feedback")
+
+    df = pd.read_csv(stata_file_path)
+
+    df = (
+        df.groupby(["sur_yr", "caste_group", "problem", "cop_mech"])[
+            "hh_id_panel"
+        ].nunique()
+    ).reset_index()
+
+    df = df.pivot(
+        index=[
+            "sur_yr",
+            "caste_group",
+            "problem",
+        ],
+        columns="cop_mech",
+        values="hh_id_panel",
+    ).reset_index()
+
+    result_file = results_folder.joinpath("count_caste_cop_mech_problem_yr.csv")
+    df.to_csv(result_file, index=False)
+
+
+"""Does coping mechanism adopted by a household vary by the ownership status of land?"""

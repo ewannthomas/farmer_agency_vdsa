@@ -39,3 +39,21 @@ Similarly, in each year we have the following number of households where any mem
 # Creating Gender wise summary for GICC
 
 ## Merging Family Comp with Info ranking
+
+# Does access to information and institutions by the household vary by caste of household head?
+
+Step 1: Merged `Gen_info` dataset with `Info_ranking`. The merge stats are:
+
+1. 314 unmerged households in `Gen_info`.
+2. All households from `Info_ranking` were merged.
+3. Both datasets had 1419 common households.
+
+# Does households belonging to different castes adopt different coping mechanisms?
+
+Step 1: Merged `Gen_info` dataset with `Cop_mech`. The merge stats are:
+
+1. 637 unmerged households in `Gen_info`.
+2. All households from `Cop_mech` were merged.
+3. Both datasets had 889 common households.
+
+# Does coping mechanism adopted by a household vary by the ownership status of land?

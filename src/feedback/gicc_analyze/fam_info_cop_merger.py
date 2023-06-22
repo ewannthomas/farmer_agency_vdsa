@@ -51,8 +51,8 @@ def fam_info_cop_merger():
         indicator=True,
     )
 
-    merger_info(df=df)
-    df.drop("_merge", axis=1, inplace=True)
+    df = merger_info(df=df)
+
     # df = df[df["rank"] == 1]
 
     # merging coping mechnaism to family + info
@@ -66,13 +66,11 @@ def fam_info_cop_merger():
         indicator=True,
     )
 
-    merger_info(df=df)
+    df = merger_info(df=df)
 
     # print(df[df["hh_id_panel"] == "IAPA0220"])
 
     # df = df.groupby(["hh_id_panel", "_merge"])["hh_id_panel"].nunique()
-
-    df.drop("_merge", axis=1, inplace=True)
 
     # converting the merge of coping mech to long
 
@@ -128,8 +126,8 @@ def famall_info_cop_merger():
         indicator=True,
     )
 
-    merger_info(df=df)
-    df.drop("_merge", axis=1, inplace=True)
+    df = merger_info(df=df)
+
     df = df[df["rank"] == 1]
 
     # merging coping mechnaism to family + info
@@ -143,13 +141,11 @@ def famall_info_cop_merger():
         indicator=True,
     )
 
-    merger_info(df=df)
+    df = merger_info(df=df)
 
     # print(df[df["hh_id_panel"] == "IAPA0220"])
 
     # df = df.groupby(["hh_id_panel", "_merge"])["hh_id_panel"].nunique()
-
-    df.drop("_merge", axis=1, inplace=True)
 
     # converting the merge of coping mech to long
 

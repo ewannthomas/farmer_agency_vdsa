@@ -51,9 +51,7 @@ def fam_reliab_rank_merger():
         indicator=True,
     )
 
-    merger_info(df)
-
-    df.drop("_merge", axis=1, inplace=True)
+    df = merger_info(df)
 
     print(df)
 
