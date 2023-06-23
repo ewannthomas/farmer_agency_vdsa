@@ -2,7 +2,7 @@ import pandas as pd
 from utils.dir_values import dir_values
 from utils.merger_info import merger_info
 
-raw_path, interim_path, long_path, processed_path, external_path = dir_values()
+interim_path, long_path, results_folder = dir_values()
 
 
 # importing family comp
