@@ -8,6 +8,7 @@ def widen_frame(
     index_cols: list,
     wide_cols: list = None,
     agg_dict: dict = None,
+    hh_id: bool = True,
 ):
     """
     This function converts the entire dataframe into a wider version of itself and writes it to the tSNE folder in the interim data directory. It conducts the Pandas Pivot fucntion to achieve the same, after ensuring the absence of duplicates in the dataframe.
@@ -21,6 +22,8 @@ def widen_frame(
     wide_cols: A list of column names which will be, strictly, converted to float and reduced to statisitcs mentioned in the agg_dict based on the index_cols groups.
 
     agg_dict: A dictionary which defines the summary statistic that should be created for each col in the wide_cols list while performing the groupby operation.
+
+    hh_id: A boolean (default True) which creates the panel household id extracting the year values from the original id variable.
     """
 
     if agg_dict != None:
@@ -39,7 +42,8 @@ def widen_frame(
             df = df.groupby(index_cols).agg(agg_dict).reset_index()
 
             # creating a new hh_id by isolating the household numer and year values
-            df = hh_id_create(df)
+            if hh_id:
+                df = hh_id_create(df)
 
             final_wide_cols = []
             for col in index_cols:
@@ -76,7 +80,7 @@ def widen_frame(
     else:
         final_wide_cols = []
         for col in index_cols:
-            if col != "hh_id":
+            if not col in ["hh_id", "hh_id_panel"]:
                 final_wide_cols.append(col)
                 # df[col] = df[col].astype(str).fillna("undefined")
 
@@ -86,7 +90,8 @@ def widen_frame(
         wide_cols = [x for x in df.columns if x not in index_cols]
 
         # creating a new hh_id by isolating the household numer and year values
-        df = hh_id_create(df)
+        if hh_id:
+            df = hh_id_create(df)
 
         # widening the columns
         df = df.pivot(
