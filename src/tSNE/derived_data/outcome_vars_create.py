@@ -91,9 +91,16 @@ def success_create(tag: str):
     df = first_diff_create(tag)
 
     # creating the success variable
-    conds = [df["diff"] > 0, df["diff"] < 0, df["diff"].isna()]
-    opts = [1, 0, 1]
-    df["success"] = np.select(conds, opts, default=999)  # no 999 were present.
+    conds = [
+        df["diff"] > 0,
+        df["diff"] < 0,
+        df["diff"].isna(),
+        df["diff"] == 0,
+    ]
+    opts = [1, 0, 1, 1]
+    df["success"] = np.select(conds, opts, default=999)
+
+    # print(df["success"].value_counts(dropna=False))
 
     # print(df.shape)
 
@@ -123,6 +130,9 @@ def success_create(tag: str):
                     np.nan
                 )  # redefining success to missing to exclue hh with mixed values
 
+        if i[1]["total_prodn"].eq(0).all():
+            i[1]["success"] = 0  # making hh with zero prodn across years as failed
+
         # making success nan for housheolds with only one year of prodcution
         if len(i[1]) == 1:
             i[1]["success"] = np.nan
@@ -134,6 +144,8 @@ def success_create(tag: str):
         proxy_list.append(i[1])
 
     df = pd.concat(proxy_list, axis=0)
+
+    # print(df["success"].value_counts(dropna=False))
 
     # print(df)
 

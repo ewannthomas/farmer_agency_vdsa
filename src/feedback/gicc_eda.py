@@ -78,3 +78,24 @@ count_hh_irri_source()
 count_hh_irri_source_yr()
 count_irri_source_cop_mech()
 count_irri_source_cop_mech_yr()
+
+"""How many households were successful?"""
+"""How many households were successful in which calamity?"""
+"""What coping mechanisms lead to success?"""
+from rules_summary.succes_cop_mech import success_count
+from rules_summary.succes_cop_mech import success_calamity_count
+from rules_summary.succes_cop_mech import success_cop_mech
+from rules_summary.succes_cop_mech import success_cop_mech_yr
+
+success_count()
+success_calamity_count()
+success_cop_mech()
+success_cop_mech_yr()
+
+
+"""How many male and female headed households adopted which coping mechanism and was successful?"""
+from rules_summary.success_gender_cop_mech import success_gender_cop_mech_yr
+from rules_summary.success_gender_cop_mech import success_gender_cop_mech
+
+success_gender_cop_mech()
+success_gender_cop_mech_yr()
