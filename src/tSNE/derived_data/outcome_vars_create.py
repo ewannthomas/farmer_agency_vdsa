@@ -181,6 +181,16 @@ def outcome_vars_create():
             # widening frame
             df = widen_frame(df=df, index_cols=cols, hh_id=False)
 
+            if tag == "total_cult_yr":
+                df.rename(
+                    columns={
+                        "t_o_t_a_l___p_r_o_d_n": "total_prodn",
+                        "d_i_f_f": "diff",
+                        "s_u_c_c_e_s_s": "success",
+                    },
+                    inplace=True,
+                )
+
             # print(df)
 
             df.to_csv(interim_file, index=False)
