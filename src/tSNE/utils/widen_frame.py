@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from utils.to_float import to_float
 from utils.hh_id_create import hh_id_create
 
@@ -9,6 +10,7 @@ def widen_frame(
     wide_cols: list = None,
     agg_dict: dict = None,
     hh_id: bool = True,
+    index_miss: bool = False,
 ):
     """
     This function converts the entire dataframe into a wider version of itself and writes it to the tSNE folder in the interim data directory. It conducts the Pandas Pivot fucntion to achieve the same, after ensuring the absence of duplicates in the dataframe.
@@ -39,17 +41,21 @@ def widen_frame(
             index_cols.append(
                 "sur_yr"
             )  # adding sur_yr to index cols to ensure the presence of year values in the final dataframe
-            df = df.groupby(index_cols).agg(agg_dict).reset_index()
-
-            # creating a new hh_id by isolating the household numer and year values
-            if hh_id:
-                df = hh_id_create(df)
 
             final_wide_cols = []
             for col in index_cols:
                 if col not in ["hh_id", "hh_id_panel", "sur_yr"]:
                     final_wide_cols.append(col)
-                    # df[col] = df[col].astype(str).fillna("undefined")
+
+            if index_miss:
+                for col in final_wide_cols:
+                    df[col] = df[col].fillna("undefined")
+
+            df = df.groupby(index_cols).agg(agg_dict).reset_index()
+
+            # creating a new hh_id by isolating the household numer and year values
+            if hh_id:
+                df = hh_id_create(df)
 
             # widening the columns
             df = df.pivot(
@@ -64,16 +70,14 @@ def widen_frame(
             df.columns = col_names
             df.reset_index(inplace=True)
 
-            # df['id']=reduce(lambda df[a],df[b] df[a]+"_"+df[b], wide_cols )
-
         except TypeError:
             print(f"string object in {col}")
 
         except TabError:
             print("Duplicates in data. Halting Process.")
 
-        except KeyError:
-            pass
+        # except KeyError:
+        #     pass
 
         return df
 
@@ -82,7 +86,10 @@ def widen_frame(
         for col in index_cols:
             if not col in ["hh_id", "hh_id_panel"]:
                 final_wide_cols.append(col)
-                # df[col] = df[col].astype(str).fillna("undefined")
+
+        if index_miss:
+            for col in final_wide_cols:
+                df[col] = df[col].fillna("undefined")
 
         # now since columns to be widened are not specified, we need to remove sur_yr from the columns
         index_cols.append("sur_yr")
@@ -97,7 +104,6 @@ def widen_frame(
         df = df.pivot(
             index=["hh_id_panel", "sur_yr"], columns=final_wide_cols, values=wide_cols
         )
-        print(df)
 
         # renamimg the Multiindex
         level_names = df.columns

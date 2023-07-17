@@ -32,6 +32,7 @@ def sales_purchase():
         sat_cols = {
             "vds_id": "hh_id",
             "vdsid": "hh_id",
+            "item_pur_sold": "item_category",
         }
 
         # unncecessary cols to be removed
@@ -53,27 +54,12 @@ def sales_purchase():
         # cleaning item_category
         df["item_category"] = df["item_category"].str.strip().str.lower()
 
-        item_map = {
-            "house or farm buildings": "Materials purchased for house/farm building",
-            "farm machinery and implements": "Machinery & implements",
-            "others": "Others",
-            "investments on water exploration": "Investment on water exploration",
-            "consumer durables": "Consumer durables",
-            "agril land & residential plots": "Investment on soil and water conservation",
-            "mat. pur. for house/farm building": "Materials purchased for house/farm building",
-            "machinery and implements": "Machinery & implements",
-            "inv. on water exploration": "Investment on water exploration",
-            "rainfed land": "Rain-fed land",
-            "others (sand)": "Others",
-            "machinery & implements": "Machinery & implements",
-            "motorcycle": "Consumer durables",
-            "laptop": "Consumer durables",
-            "irrigated land": "Irrigated land",
-            "motercycle": "Consumer durables",
-            "t.v": "Consumer durables",
-        }
+        # laoding mapper for item_category
+        item_cat_map_path = "./src/tSNE/raw_data_clean/sales_pur_item_cats.json"
+        with open(item_cat_map_path, "r") as in_file:
+            item_cat_mapper = dict(json.load(in_file))
 
-        df["item_category"] = df["item_category"].replace(item_map)
+        df["item_category"] = df["item_category"].replace(item_cat_mapper)
 
         df["item_category"] = df["item_category"].str.strip().str.lower()
 
@@ -132,6 +118,7 @@ def sales_purchase():
 
         pur_cols = [
             "hh_id",
+            "sur_yr",
             "sur_mon_yr",
             "item_category",
             "pur_qty",
@@ -161,6 +148,7 @@ def sales_purchase():
 
         sold_cols = [
             "hh_id",
+            "sur_yr",
             "sur_mon_yr",
             "item_category",
             "sold_qty",
@@ -190,27 +178,58 @@ def sales_purchase():
 
         df = pd.concat([df_pur, df_sold], axis=0).reset_index(drop=True)
 
+        # adding month column
+        df["month"] = pd.to_datetime(df["sur_mon_yr"]).dt.month_name()
+
+        # droppimg sur_mon_yr values as we have year and month capturing the necesary information
+        df.drop("sur_mon_yr", axis=1, inplace=True)
+
+        # creating total_monetary value of sale or purchase
+        df["total_value"] = df["market_cost"] * df["quantity"]
+        df["total_value"] = np.where(
+            df["total_value"].isna(), df["market_cost"], df["total_value"]
+        )  # manually verified that whenever, total cost is misisng its because quantity is missing.
+
+        # removing missing values from the index columns
+        df["from_whom"] = np.where(
+            df["from_whom"].isna(), "undefined", df["from_whom"]
+        )  # manully verified
+
+        check_duplicates(
+            df=df,
+            index_cols=[
+                "hh_id",
+                "sur_yr",
+                "month",
+                "pur_sold",
+                "item_category",
+                "from_whom",
+            ],
+            master_check=False,
+            write_file=False,
+        )  # dups will betaken care it widen_frame
+
         # exporting long dataframe
-        long_frame(tag=tag, df=df, cols=["market_cost", "dist_to_market", "quantity"])
+        long_frame(
+            tag=tag,
+            df=df,
+            cols=["market_cost", "dist_to_market", "quantity", "total_value"],
+        )
 
         df = widen_frame(
             df=df,
             index_cols=[
                 "hh_id",
-                "sur_mon_yr",
+                "month",
                 "pur_sold",
                 "item_category",
                 "from_whom",
             ],
-            wide_cols=["market_cost", "dist_to_market", "quantity"],
-            agg_dict={
-                "market_cost": "sum",
-                "dist_to_market": "mean",
-                "quantity": "sum",
-            },
+            wide_cols=["dist_to_market", "total_value"],
+            agg_dict={"dist_to_market": "mean", "total_value": "sum"},
         )
 
-        # print(df)
+        print(df)
 
         df.to_csv(interim_file, index=False)
 

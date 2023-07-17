@@ -19,7 +19,7 @@ def dir_values():
     if not processed_path.exists():
         processed_path.mkdir(parents=True)
 
-    if not processed_path.exists():
-        processed_path.mkdir(parents=True)
+    if not external_path.exists():
+        external_path.mkdir(parents=True)
 
     return raw_path, interim_path, processed_path, external_path

@@ -94,6 +94,12 @@ def products_sold():
             inplace=True
         )  # manually verified. Will remove 6 observations
 
+        # adding month column
+        df["month"] = pd.to_datetime(df["sur_mon_yr"]).dt.month_name()
+
+        # droppimg sur_mon_yr values as we have year and month capturing the necesary information
+        df.drop("sur_mon_yr", axis=1, inplace=True)
+
         check_duplicates(
             df=df, index_cols=["hh_id"], master_check=True, write_file=True
         )
@@ -109,7 +115,7 @@ def products_sold():
             df=df,
             index_cols=[
                 "hh_id",
-                "sur_mon_yr",
+                "month",
                 "crop_lst_prod",
                 "sold_in_out",
                 "sold_to_co",

@@ -43,6 +43,7 @@ def gen_info_cleaner():
             "old_hh_no",
             "vdsid_hhid",
             "cs_hh_no",
+            "country",
         ]
 
         df = data_wrangler(
@@ -143,6 +144,30 @@ def gen_info_cleaner():
         long_frame(tag=tag, df=df)
 
         df = hh_id_create(df=df)
+
+        string_cols = [
+            "village",
+            "block",
+            "district",
+            "state",
+            "pre_farm_size",
+            "old_farm_size",
+            "market_place",
+            "caste",
+            "sub_caste",
+            "caste_group",
+            "religion",
+            "main_occp",
+            "subs_occp",
+            "how_head",
+            "how_head_ot",
+            "immi_to_vil",
+            "reas_immi",
+        ]
+        # getting dummies of all the string columns columns
+        cols = [col for col in df.columns if col not in ["hh_id_panel", "sur_yr"]]
+        cols = [col for col in cols if col in string_cols]
+        df = pd.get_dummies(data=df, columns=cols, dtype=float)
 
         print(df)
 

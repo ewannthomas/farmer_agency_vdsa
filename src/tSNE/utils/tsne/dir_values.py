@@ -8,8 +8,9 @@ def dir_values():
 
     dir_path = Path(__file__).resolve().parents[4]
     interim_path = dir_path.joinpath("data/interim/tsne")
+    long_path = dir_path.joinpath("data/interim/tsne/long_data")
     processed_path = dir_path.joinpath("data/processed/tsne")
-    external_path = dir_path.joinpath("data/external")
+    prepocessed_path = dir_path.joinpath("data/preprocessed/tsne")
 
     # creating the data directories
     if not interim_path.exists():
@@ -18,7 +19,7 @@ def dir_values():
     if not processed_path.exists():
         processed_path.mkdir(parents=True)
 
-    if not processed_path.exists():
-        processed_path.mkdir(parents=True)
+    if not prepocessed_path.exists():
+        prepocessed_path.mkdir(parents=True)
 
-    return interim_path, processed_path, external_path
+    return interim_path, long_path, processed_path, prepocessed_path

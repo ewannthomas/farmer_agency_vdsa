@@ -38,7 +38,6 @@ def plotlist():
             rename_sat=sat_cols,
             remove_cols=remove_cols,
         )
-
         # merging the plot ID and house number to make unique HH ID
 
         df["hh_no"] = df["hh_no"].fillna(0).astype(int)
@@ -433,9 +432,9 @@ def plotlist():
             ]
         )
         ###########################################################################################
-
         index_cols = [
             "hh_id",
+            "sur_yr",
             "plot_code",
             "sub_plot_code",
             "ownership_status_plotlist",
@@ -449,31 +448,13 @@ def plotlist():
 
         # widening the data based on plot code
 
-        # before widening the columns, we are removing plot_name by groupby agg across all other string vals
-
-        df = (
-            df.groupby(index_cols)
-            .agg(
-                {
-                    "plot_area": "sum",
-                    "crop_area": "sum",
-                    "irri_area": "sum",
-                }
-            )
-            .reset_index()
-        )
-
         # checking for duplicates
         check_duplicates(
             df,
             index_cols=index_cols,
             # master_check=True,
-            write_file=False,
+            write_file=True,
         )
-
-        df["plot_code"].dropna(
-            inplace=True
-        )  # removing nan values in plot code. These values are all null across columns. Manually verified.
 
         # exporting long dataframe
         long_frame(
@@ -484,14 +465,28 @@ def plotlist():
 
         df = widen_frame(
             df=df,
-            index_cols=index_cols,
+            index_cols=[
+                "hh_id",
+                "plot_code",
+                "sub_plot_code",
+                "ownership_status_plotlist",
+                "season",
+                "crop_1_type",
+                "crop_2_type",
+                "crop_3_type",
+                "crop_4_type",
+                "crop_5_type",
+            ],
             wide_cols=["plot_area", "crop_area", "irri_area"],
             agg_dict={
                 "plot_area": "sum",
                 "crop_area": "sum",
                 "irri_area": "sum",
             },
+            index_miss=True,
         )
+
+        # print(df)
 
         df.to_csv(interim_file, index=False)
 

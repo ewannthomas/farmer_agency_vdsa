@@ -135,10 +135,15 @@ def fin_transacts():
         # removing duplicates
         df.drop_duplicates(inplace=True)  # manually verified. 99 obs will be removed
 
+        # adding month column
+        df["month"] = pd.to_datetime(df["sur_mon_yr"]).dt.month_name()
+        # droppimg sur_mon_yr values as we have year and month capturing the necesary information
+        df.drop("sur_mon_yr", axis=1, inplace=True)
+
         check_duplicates(
             df=df,
-            index_cols=["hh_id", "sur_mon_yr", "fin_category"],
-            master_check=True,
+            index_cols=["hh_id", "month", "fin_category"],
+            master_check=False,
             write_file=True,
         )
 
@@ -151,9 +156,10 @@ def fin_transacts():
 
         df = widen_frame(
             df=df,
-            index_cols=["hh_id", "sur_mon_yr", "fin_category", "amount_spend_by"],
+            index_cols=["hh_id", "month", "fin_category", "amount_spend_by"],
             wide_cols=["amount_given", "amount_received"],
             agg_dict={"amount_given": "sum", "amount_received": "sum"},
+            index_miss=True,
         )
 
         df.to_csv(interim_file, index=False)

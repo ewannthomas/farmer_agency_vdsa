@@ -77,6 +77,7 @@ def farm_equip():
                 "horse_power": "max",
                 "farm_equipment_present_value": "sum",
             },
+            index_miss=True,
         )
 
         df.to_csv(interim_file, index=False)

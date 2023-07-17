@@ -3,50 +3,47 @@ import pandas as pd
 from utils.tsne.dir_values import dir_values
 
 
-interim_path, processed_path, external_path = dir_values()
+interim_path, long_data, processed_path, external_path = dir_values()
 
 
-def special_data_cases():
-    """A function to process special datasets befor merging for t-SNE implemetation"""
+# def special_data_cases():
+#     """A function to process special datasets befor merging for t-SNE implemetation"""
 
-    dfs = []
+#     dfs = []
 
-    def success():
-        tag = "total_cult_yr"
+#     def success():
+#         tag = "total_cult_yr"
 
-        interim_file = interim_path.joinpath(f"{tag}.csv")
+#         interim_file = interim_path.joinpath(f"{tag}.csv")
 
-        df = pd.read_csv(interim_file)
+#         df = pd.read_csv(interim_file)
 
-        df = (
-            df[(df["success"].notna())]
-            .drop("sur_yr", axis=1)
-            .drop_duplicates(subset="hh_id_panel")
-        )  # manually verifed. We have 181 hh
+#         df = (
+#             df[(df["success"].notna())]
+#             .drop("sur_yr", axis=1)
+#             .drop_duplicates(subset="hh_id_panel")
+#         )  # manually verifed. We have 181 hh
 
-        return df
+#         return df
 
-    dfs.append(success())
+#     dfs.append(success())
 
-    return dfs
+#     return dfs
 
 
-def merge_data(tags: list):
+def merge_data(paths: list):
     """A function to input a list of wide data tags, merged into a single dataset, to be subjected for t-SNE and DL operations.
 
     Parameters:
 
     tags: A list of data tags which are present in the 'data/interim/tsne' directory"""
 
-    input_paths = list(interim_path.glob("*.csv"))
-    input_paths = [
-        path for path in input_paths if path.stem in tags
-    ]  # and path.stem != "total_cult_yr"
+    input_paths = paths
 
-    print(input_paths)
+    # print(input_paths)
 
-    dfs = [pd.read_csv(path) for path in input_paths]
-    # dfs.extend(special_data_cases())
+    dfs = [pd.read_csv(path, low_memory=False) for path in input_paths]
+    dfs = [df for df in dfs if len(df.columns) > 2]
 
     df = functools.reduce(
         lambda left_df, right_df: pd.merge(

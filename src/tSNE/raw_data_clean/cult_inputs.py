@@ -49,6 +49,34 @@ def cult_inputs():
             remove_cols=remove_cols,
         )
 
+        # cleaning sur_mon_yr column
+        df["sur_mon_yr"] = df["sur_mon_yr"].str.strip()
+        conds = [
+            (df["hh_id"] == "IOR14A0010") & (df["sur_mon_yr"].astype(str) == "12 14"),
+            (df["hh_id"] == "IOR14A0033") & (df["sur_mon_yr"].astype(str) == "06 14"),
+            (df["hh_id"] == "IOR14A0041") & (df["sur_mon_yr"].astype(str) == "12 14"),
+            (df["hh_id"] == "IOR14A0046") & (df["sur_mon_yr"].astype(str) == "12"),
+            (df["hh_id"] == "IOR14A0047") & (df["sur_mon_yr"].astype(str) == "12/"),
+            (df["hh_id"] == "IOR14A0050") & (df["sur_mon_yr"].astype(str) == "11"),
+            (df["hh_id"] == "IAP10D0047") & (df["sur_mon_yr"].astype(str) == "12 10"),
+            (df["hh_id"] == "IKN10A0037") & (df["sur_mon_yr"].astype(str) == "08 10"),
+            (df["hh_id"] == "IKN10A0038") & (df["sur_mon_yr"].astype(str) == "07 10"),
+        ]
+
+        opts = [
+            "12/14",
+            "6/14",
+            "12/14",
+            "12/14",
+            "12/14",
+            "11/14",
+            "12/10",
+            "8/10",
+            "7/10",
+        ]
+
+        df["sur_mon_yr"] = np.select(conds, opts, default=df["sur_mon_yr"].astype(str))
+
         # making the date column correct
         df["sur_mon_yr"] = pd.to_datetime(df["sur_mon_yr"], format="%m/%y")
 
@@ -105,25 +133,33 @@ def cult_inputs():
         # renaming value of material as material cost
         df.rename(columns={"val_mat": "material_cost"}, inplace=True)
 
+        # adding month column
+        df["month"] = pd.to_datetime(df["sur_mon_yr"]).dt.month_name()
+
+        # droppimg sur_mon_yr values as we have year and month capturing the necesary information
+        df.drop("sur_mon_yr", axis=1, inplace=True)
+
+        check_duplicates(
+            df=df,
+            index_cols=["hh_id", "month", "plot_code", "season", "operation"],
+            master_check=False,
+            write_file=True,
+        )
+
         # exporting long dataframe
         long_frame(tag=tag, df=df)
 
         # widening the frame
-        # df = widen_frame(
-        #     df=df,
-        #     index_cols=["hh_id","sur_mon_yr", "plot_code", "season", "operation"],
-        #     wide_cols=["labour_cost", "material_cost"],
-        #     agg_dict={"labour_cost": "sum", "material_cost": "sum"},
-        # )
-
-        check_duplicates(
+        df = widen_frame(
             df=df,
-            index_cols=["hh_id", "sur_mon_yr", "plot_code", "season", "operation"],
-            master_check=True,
-            write_file=True,
+            index_cols=["hh_id", "month", "plot_code", "season", "operation"],
+            wide_cols=["labour_cost", "material_cost"],
+            agg_dict={"labour_cost": "sum", "material_cost": "sum"},
         )
 
-        # df.to_csv(interim_file, index=False)
+        print(df)
+
+        df.to_csv(interim_file, index=False)
 
     else:
         print(f"{tag} interim file exists")

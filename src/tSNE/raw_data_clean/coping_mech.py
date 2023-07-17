@@ -251,7 +251,7 @@ def coping_mech():
 
         # for the sake of widening we are recreating more cop_mech columns. We faced duplicates when the same household faced two different calamitoes belonging to the same category.
         # adding duplicate-look alike cop_mechs as mech 4, 5, 6 etc
-        # so we rae creating a new subset with coping mechanisms and a subset with aggregated loss percentages and losses for each category of calamity
+        # so we are creating a new subset with coping mechanisms and a subset with aggregated loss percentages and losses for each category of calamity
         df_cop = df.melt(
             id_vars=["hh_id", "sur_yr", "ado_co_me", "problem"],
             value_vars=cols,
@@ -338,7 +338,41 @@ def coping_mech():
 
         df = widen_frame(df=df, index_cols=["hh_id", "ado_co_me", "problem"])
 
-        # print(df)
+        # getting dummies of all the coping mechanisms
+        except_cols = [
+            "percent_of_income_lost_adopted_Climate Flood Drought",
+            "percent_of_income_lost_adopted_Climate Flood Drought",
+            "percent_of_income_lost_adopted_Anthropogenic",
+            "percent_of_income_lost_adopted_Biophysical",
+            "percent_of_income_lost_adopted_Others",
+            "percent_of_income_lost_adopted_Climate Others",
+            "percent_of_income_lost_not_adopted_Anthropogenic",
+            "percent_of_income_lost_not_adopted_Biophysical",
+            "percent_of_income_lost_not_adopted_Climate Flood Drought",
+            "percent_of_income_lost_not_adopted_Others",
+            "losses_in_rupees_adopted_Climate Flood Drought",
+            "losses_in_rupees_adopted_Anthropogenic",
+            "losses_in_rupees_adopted_Biophysical",
+            "losses_in_rupees_adopted_Others",
+            "losses_in_rupees_adopted_Climate Others",
+            "losses_in_rupees_not_adopted_Anthropogenic",
+            "losses_in_rupees_not_adopted_Biophysical",
+            "losses_in_rupees_not_adopted_Climate Flood Drought",
+            "losses_in_rupees_not_adopted_Others",
+            "hh_id_panel",
+            "sur_yr",
+        ]
+
+        cols = [col for col in df.columns if col not in except_cols]
+        df = pd.get_dummies(data=df, columns=cols, dtype=float)
+
+        # converting df to float
+        cols = [col for col in df.columns if col not in ["hh_id_panel"]]
+        df = to_float(
+            df=df,
+            cols=cols,
+            error_action="raise",
+        )
 
         df.to_csv(interim_file, index=False)
 

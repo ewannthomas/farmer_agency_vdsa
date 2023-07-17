@@ -3,6 +3,7 @@ from utils.data_wrangler import data_wrangler
 from utils.check_duplicates import check_duplicates
 from utils.widen_frame import widen_frame
 from utils.long_frame import long_frame
+from utils.to_float import to_float
 import pandas as pd
 import numpy as np
 import json
@@ -89,6 +90,10 @@ def cons_durab():
             master_check=False,
             write_file=False,
         )
+
+        # converting all except hh id to float
+        cols = [col for col in df.columns if col not in ["hh_id_panel"]]
+        df = to_float(df=df, cols=cols, error_action="raise")
 
         df.to_csv(interim_file, index=False)
 

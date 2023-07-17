@@ -6,6 +6,7 @@ from utils.widen_frame import widen_frame
 from utils.long_frame import long_frame
 import pandas as pd
 import numpy as np
+import re
 
 
 def landholding():
@@ -44,6 +45,7 @@ def landholding():
             "bund_type_ot",
             "soil_type_ot",
             "soil_degr_ot",
+            "who_owns",  # i dont want this column becuase it's unnecessarily messing up my wide data
         ]
 
         df = data_wrangler(
@@ -231,10 +233,37 @@ def landholding():
             write_file=True,
         )
 
+        # dropping all cases were plot_code is missing
+        df = df[~(df["plot_code"].isna())]  # verified
+
         # exporting long dataframe
         long_frame(tag=tag, df=df)
 
         df = widen_frame(df=df, index_cols=["hh_id", "sl_no", "plot_code"])
+
+        string_cols = [
+            "plot_change_in_status_.*",
+            "onwership_status_landholding_.*",
+            "sou_irri_1_.*",
+            "sou_irri_2_.*",
+            "soil_fert_.*",
+            "soil_type_.*",
+            "slope_.*",
+            "soil_degr_.*",
+            "plot_loc_.*",
+            "bunding_.*",
+            "bund_type_.*",
+        ]
+
+        string_cols = [re.match(pat, col) for pat in string_cols for col in df.columns]
+        string_cols = [col.group(0) for col in string_cols if col != None]
+
+        # getting dummies of all the string columns columns
+        cols = [col for col in df.columns if col not in ["hh_id_panel", "sur_yr"]]
+        cols = [col for col in cols if col in string_cols]
+        df = pd.get_dummies(data=df, columns=cols, dtype=float)
+
+        print(df)
 
         df.to_csv(interim_file, index=False)
 

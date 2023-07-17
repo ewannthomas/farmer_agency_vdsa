@@ -55,6 +55,9 @@ def data_wrangler(
             col_list = [x for x in col_list if x not in remove_cols]
             df = df[col_list]
 
+            # print(tag)
+            # print(df.columns)
+
             # renaming the necessary columns. Names will be sourced fronm the function assigned for each tag
             if file["region"] == "eastindia":
                 df.rename(columns=rename_east, inplace=True)

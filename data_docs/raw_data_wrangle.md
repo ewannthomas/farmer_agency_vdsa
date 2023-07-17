@@ -8,9 +8,7 @@ General Facts:
 
 - The column `hh_id`, across all data products generated, is a combination of the household identifier and survey year. Entries in this column uniquely identifies the data atg household year level resolution.
 
-## Panel Data Regression
-
-## tSNE and Deep Learning
+## T-SNE - Raw Data Cleaning
 
 Basic wrangling exercises include:
 
@@ -24,13 +22,13 @@ Basic wrangling exercises include:
 
 #### Household Information
 
-In this section of the GES schedule, the enumerators collect information which provides an overview of the household, such as location, land owned, lamnd irrigated, demographics, asset position etc. 
+In this section of the GES schedule, the enumerators collect information which provides an overview of the household, such as location, land owned, lamnd irrigated, demographics, asset position etc.
 
-After exercising the basic wrangling measures, we identified all the numeric columns which had empty string vlues  like trailing spaces, unencessary spaces among characters or digits. Owing to the presence of these non numeric values, these columns were initially identified and read as string columns by the Pandas `read_excel`fucntion. These columns were converetd to floats. 
+After exercising the basic wrangling measures, we identified all the numeric columns which had empty string vlues like trailing spaces, unencessary spaces among characters or digits. Owing to the presence of these non numeric values, these columns were initially identified and read as string columns by the Pandas `read_excel`fucntion. These columns were converetd to floats.
 
-Similarly, the string columns were identified and cleansed of trailing spaces and other non alpha numeric values whcih rendered them difficult to interpret. 
+Similarly, the string columns were identified and cleansed of trailing spaces and other non alpha numeric values whcih rendered them difficult to interpret.
 
-The columns `caste, religion` were recoded contained rogue strings, which were either created by errors at the time of information entry by the enumerator while on field or other unidentified sources. These rogue values are problematic when present in string columns which are essentially categorical and as per the schedule, they have fixed set of values which are considered valid. Hence, these rogue string values, whcih sometimes are directly relatable or not, have to mapped to the values or categories mentioned in the schedule. This is achieved either by creating a Python dictionary with the rogue value as the `key` and its corresponding match from the schedule as the `value`. When the numder of rogue strings are relatively low, we define the dictionary within the script itself. However, when the count of rogue strings are large and may possibly wreck the script, a separate JSON file with a suitable name is craeted and called in as a dictionary to perform the mapping exercise. 
+The columns `caste, religion` were recoded contained rogue strings, which were either created by errors at the time of information entry by the enumerator while on field or other unidentified sources. These rogue values are problematic when present in string columns which are essentially categorical and as per the schedule, they have fixed set of values which are considered valid. Hence, these rogue string values, whcih sometimes are directly relatable or not, have to mapped to the values or categories mentioned in the schedule. This is achieved either by creating a Python dictionary with the rogue value as the `key` and its corresponding match from the schedule as the `value`. When the numder of rogue strings are relatively low, we define the dictionary within the script itself. However, when the count of rogue strings are large and may possibly wreck the script, a separate JSON file with a suitable name is craeted and called in as a dictionary to perform the mapping exercise.
 
 #### 1.1 Household Member Schedule (VDSA – C)
 
@@ -69,12 +67,43 @@ It is observed that households `IBH14C0057` and `IBH14D0010` have information re
 
 The column `gender` was recoded to a dummy variable where all male entries were recoded to 0 and female entires to 1. The column was later renamed to `female`. Similarly the column `liv_wit_oth` has been recoded to make the string `family` to say `with_family`.
 
+Unique households in the data: 1526
+
 #### 1.2 Landholding information (VDSA – D)
 
 The landholding information schedule of the GES questionnaire enquires about information on who owns the land and unique identifiers for the plots. It identifies the various sources from whcih each plot is irrigated, soil depth, soil type, revenue from the land etc. The schdeule provides very exhaustive information on the soil conditions and land type of the plot. The identifiers used, `plot_code` is equivalent to the identifier used in the Plotlist and Cropping Patterns questionnaire of VDSA. So, the values are comparable.
 
 The duplicates were checked on columns `hh_id`, `sl_no`, and `plot_code`. There were no duplicates.
 Later, all columns which had numeric values were converted to float data type. Teh column `plot_name` was removed because `plot_code` enabled identification of the rows uniquely. Columns on ownership status, change of ownership status, source of irrigation, soil type, fertility and degradation, bunding and bunding type were reassigned to their corrsponding string based vategory values as in the questionnaire. Columns which housed values beyond any defined category of any column was enetered as col_name_others. Such other column which had string values were removed fromthe datastet. e.g.: bund_type_others
+
+For the follwoing households, `plot_code` was missing and no other information except household id and year were available:
+
+- IAP11C0001
+- IAP11D0060
+- IGJ11B0004
+- IGJ11B0005
+- IGJ11B0007
+- IGJ11B0008
+- IMH11B0241
+- IMH11B0242
+- IMH11B0061
+- IMH11B0236
+- IMH11D0001
+- IMH11D0224
+- IMP11B0005
+- IMP11B0008
+- IOR14D0010
+- IOR14D0047
+- IOR14B0002
+- IOR14B0004
+- IOR14B0009
+- IOR14C0200
+- IOR14C0003
+  Hence these households were removed from the data.
+
+After widening the data, the categories in the string columns were converted to dummies.
+
+Unique households in the data: 1345
 
 #### 1.3 Animal inventory of the Household (VDSA – E)
 
@@ -89,6 +118,8 @@ After exercising the basic wrangling measures, we inspected for duplicates acros
 One entry was removed to ensure unique identification of dataframe. Necessary column name renaming was done to make better sense of the column names.
 
 The column `livestock_type` holding categories of livestock types had rogue string values which were recoded to reflect the categories mentioned in the questionnaire. Post mapping of categorical string values, the dataframe was grouped on the basis of household and livestock type columns \(`hh_id, livestock_type`\) and a sum of the subsequent count columns of livestock were obtained. Prior to grouping and summing all columns with numeric values `present_val, on_farm_reared_count, purchased_count, received_gift_count, shared_rearing_count` were necessarily converted to float data type.
+
+Unique households in the data: 1139
 
 #### 1.4 Farm implements owned by the household (VDSA – F)
 
@@ -130,6 +161,10 @@ The basic wrangling measures were followed by recoding of the `item_name` column
 However, the data contained around 237 rogue categories whcih varied widely in terms of string, spellings etc. All such rogue values were carefully checked and mapped to one of the values in the above list. The mapper employed to achive the recode of these values is available at [farm_equip_map.json]()
 
 The category mapping was followed by widening of the dataset. There are multiple households which own many number of the same equipment, some fully owned by the household and some shared at a percent of stake, as reported in the `prct_share` column. So these multiple number of the equipments at different stake act as duplicates of eachother. To resolve this we can make use of the `farm_equipment_present_value` column which, as per the documnetation, is the reported value of the implement as per the stake in the ownership. So to widen the dataset, the `prct_share` column can be ignored and the same equipments can be aggregated in terms of the number and its present value. For the column, `horse_power` recorded only for major machinery like tractor, thresher, and pumpset, we take the maximum value within the `item_name` category.
+
+The mising values in the grouping or index columns were reassigned a string 'undefined'.
+
+Unique households in the data: 1516
 
 #### 1.5 Building & consumer durables (VDSA – G)
 
@@ -201,7 +236,9 @@ After inspecting multiple values amongst the duplicate rows, we tend to believe 
 
 Inorder to groupby and sum over `hh_id` and `item_name`, the categorical values in `item_name` were cleanned. There were around 177 rogue string values. These values have been recoded to reflect the values provided in the questionnaire. The mapper file used ia available at [consumer_durables_name_map.json]()
 
-Post name mapping, the values were grouped, aggregated and widened to give the final dataset.
+Post name mapping, the values were grouped, aggregated and widened.
+
+Unique households in the data: 1526
 
 ##### 1.5.2 Buildings
 
@@ -222,6 +259,10 @@ Moreover, there were no duplicates across all the columns. But when checked acro
 
 The data was then widened for further prcessing.
 
+Post widening, dummies for each category in the column `facility_Type Of House` were created to attune with the T-SNE data requirements.
+
+Unique households in the data: 1526
+
 #### 1.6 Stock inventory (VDSA – N)
 
 The stock inventory schedule of the GES questionnaire enquires about the quantity, unit price and total value of the inventory kept with the household. The inventory is split into the follwoing broader categories: Cereals, Pulses, Oilseeds, Other items, Fodders, Cattle Feed, Cooking Fuel and Inputs.
@@ -241,6 +282,8 @@ Afte performing the basic wrangling measures, we check for duplicates in the wit
 | 2014 | IBH14B0003 | Cooking | Dung cake | Kg | 100 | 3 | 300 | TRUE |
 
 We will not consider the name of each item, instead will try to redue the data to the previously mentioned broad categories of items. Hence `stock_category` column was remapped to match the categories, mentioned earlier, in the questionnaire \(respective mapper is available in the script\). The columns `qty_stock, unit_price_stock, total_value_stock` whcih contained numeric values were converted to float data type. Then the dataset was converted to wide data form for further processing.
+
+Unique households in the data: 1524
 
 #### 1.7 Debt and Credit Schedule (VDSA – P)
 
@@ -263,6 +306,8 @@ After performing the basic wrangling, the categoies of the `source` column has b
 Similarly the `purpose` column was numeric. We have extracted the corresponding string values from the questionnaire and mapped them.
 
 After mapping the categories, we identified certain cases where the same household was taking as loan or saving different amounts from the same source for the same purpose. There were 555 such entries in the data and they were grouped at a household, source and purpose level. Such grouped cases were aggregated (intra group) after estimating a blended interest for the respective amounts. Regarding the duration of such entries, the maximum duration, within group, of saving or loan among such entires were extrapolated.
+
+Unique households in the data: 1482
 
 #### 1.8 Role of gender
 
@@ -322,6 +367,10 @@ Then the column `resources` were cleaned off of rogue string values to reflect t
 | 2014 | IOR14A0010 | others | whom to give vote | | Male | Male | TRUE |
 
 From the table above, we observe 33 values stemming from the household `IOR14C0010`. Every alternate entry is a duplicate of the entry before it. Hence, these duplicates were removed and the dataset was widened for further processing.
+
+All the decision variables were converted to dummies. The missing values in the decision columns were also conisdered as a dimension which attempts to identify households which didnot answer certain gender rleated questions.
+
+Unique households in the data: 1526
 
 ##### 1.8.2 Role of gender in crop cultivation
 
@@ -482,6 +531,8 @@ In order to account for these entires, we have decided to recognize that all of 
 
 The \* in the column were replaced with the value 1. While doing the same, it was ntoiced that the column `women` contained one observation with the value 9 and 3 observations in the column `men_women` with the value 0. These values were removed.
 
+Unique households in the data: 1524
+
 #### 1.9 Sources of marketing and other information
 
 The sources of marketing and other information schedule of the GES questionnaire identifies institutions which the household considers as valid sources of information and also the ranking in which the household would approach each for different activities related to cultivation.
@@ -501,6 +552,8 @@ The duplicates in the above table have been removed followed by cleaning the `in
 | 2012 | IBH12A0001 | crop output prices | 1 | | 2 | | | | | | | | | TRUE |
 
 The duplicate entry was removed. The columns `rese_station, ip_manu` were renamed for better clarity. Also, all the columns have numbers or ranks as response values and hence all th columns were convereted to float data type. The dataframe was then widened to enable further processing.
+
+Unique households in the data: 1419
 
 #### 1.10 Coping echanisms
 
@@ -587,7 +640,9 @@ Later when checked for duplicates across columns `hh_id, ado_cop_me, problem` we
 - In case of `df_loss`, the when the houshold faces two or more calamities of the same category, the `percent_of_income_lost` and `losses_in_rupees` were aggregated across groups of `hh_id, ado_co_me, problem`.
 - `df_cop` and `df_loss` were merged to arrive at the restructed version of the original dataframe.
 
-Post merging, the data was widened for further processing.
+Post merging, the data was widened for further processing. From the widened data, we created dummy varibales for all the coping mechnaism categories.
+
+Unique households in the data: 889
 
 ##### 1.10.2 Government assistance
 
@@ -623,6 +678,8 @@ In the duplicate entry check across `hh-id, sou_assistance`, after cleaning the 
 | 2014 | IOR14D0051 | village community | | 4 | TRUE |
 
 We can observe that the same household is ranking the same source with different ranks. So we have decided to asuume the best and take the highest rank \(lowest number\) assigned to a source in such cases. Also, the columns `rank_rel_dro, rank_rel_flo` which represents rank of source during drought and flood respectively, was converetd to float data type and renamed for better clarity.
+
+Unique households in the data: 1524
 
 ##### 1.10.4 Proactive Measures
 
@@ -824,7 +881,13 @@ Primarily, we cleaned the `item_category, item_type, item_name` columns inorder 
 
 The columns `tot_val` was renamed as `total_expense`.
 
-In the check for duplicates entries we were able to flag 5850 entries. Compared to the size of the data, whcih goes upto 965,215 observations, the size of duplicates is very small and a possoble number.
+In the check for duplicates entries we were able to flag 5850 entries. Compared to the size of the data, whcih goes upto 965,215 observations, the size of duplicates is very small and a possible number.
+
+Apart from the above mentioned duplicates, there 3644 observations across 277 households, where they have captured the consumption expenditure for June 2015 as well in the year 2014 category. These observations were removed.
+
+Files from sections 2.1.1, 2.1.2, and 2.1.3 were compiled together.
+
+Unique households in the data: 1527
 
 #### 2.2 Sale of crop and livestock products
 
@@ -854,7 +917,10 @@ We identified 12 observations which were duplicates, when checked across columns
 | 2012 | IMH12C0047 | 01-04-2013 | | Livestock Products | Milk | Within Village | Fellow farmer | Lt | 90 | 36 | | | | | 3240 | TRUE |
 | 2012 | IMH12C0047 | 01-04-2013 | | Livestock Products | Milk | Within Village | Fellow farmer | Lt | 90 | 36 | | | | | 3240 | TRUE |
 
-The duplicate entires have been successfully removed. The data was then grouped across the columns `hh_id,	sur_mon_yr, crop_lst_prod, sold_in_out	sold_to_co` and the sum of columns `total_sales, outside_village_market_cost` and mean of column `os_dist` was taken for each group. The data widened in the process for further processing.
+The duplicate entires have been successfully removed.
+A new `month` column was created from the `sur_mon_yr` column was aused as a grouping and index variable for widening the data. The data was then grouped across the columns `hh_id,	month, crop_lst_prod, sold_in_out	sold_to_co` and the sum of columns `total_sales, outside_village_market_cost` and mean of column `os_dist` was taken for each group.
+
+Unique households in the data: 1222
 
 #### 2.3 Financial Transactions
 
@@ -925,7 +991,11 @@ We identified 42 observations with duplicates and the entries are listed below:
 | 2012 | IKN12B0057 | | 01-12-2012 | institutions | Commercial banks | 5000 | | | | | | 1 | TRUE |
 | 2012 | IKN12B0057 | | 01-12-2012 | institutions | Commercial banks | 5000 | | | | | | 1 | TRUE |
 
-Duplicates from these entries were removed. Post that, the `loan_source` column was recoded as described earlier. The columns `loan_rec, loan_int` were renamed to `loan_received, interest_on_loan` for better clarity. The data was later widened by grouping over columns `hh_id, sur_mon_yr, loan_source` and aggregating the columns`loan_repaid, loan_received` to sum across groups and the avergae of column `interest_on_loan` was taken across groups.
+Duplicates from these entries were removed. Post that, the `loan_source` column was recoded as described earlier. The columns `loan_rec, loan_int` were renamed to `loan_received, interest_on_loan` for better clarity.
+
+A new `month` column was created from the `sur_mon_yr` column was aused as a grouping and index variable for widening the data. The data was later widened by grouping over columns `hh_id, month, loan_source` and aggregating the columns`loan_repaid, loan_received` to sum across groups and the avergae of column `interest_on_loan` was taken across groups.
+
+Unique households in the data: 1331
 
 ##### 2.3.2 Gifts, Savings, Receipts, Loss of property
 
@@ -972,7 +1042,11 @@ We found 198 observations with duplicates across all columns and the first 25 ob
 | 2013 | IJH13D0053 | 41510 | 41456 | savings and deposits | payments (chit funds and shg) | 40 | | | TRUE |
 | 2013 | IJH13D0053 | 41510 | 41456 | savings and deposits | payments (chit funds and shg) | 40 | | | TRUE |
 
-After rectifying the duplicates issue, the columns `amount_given, amount_received` were aggregated at across columns `hh_id, sur_mon_yr, fin_category, amount_spend_by`.
+A `month` column was created to represent the information in `sur_mon_yr` column.
+
+After rectifying the duplicates issue, the columns `amount_given, amount_received` were aggregated at across columns `hh_id, month, fin_category, amount_spend_by`. The missing values in the grouping or index columns were assigned a string "undefined".
+
+Unique households in the data: 1526
 
 ##### 2.3.3 Benefits from government programs
 
@@ -994,7 +1068,7 @@ Hence, we have taken the follwoing measures to arrive at a consoildated data:
 
 The sale and purchase of capital assets section of the transactions schedule, colelcts information on the quantity, price and the total cost incurred or revenue generated from the purchase or sale of capital assets. The schedule lists out 10 categories or kinds of capital assets whcih need to be recorde. It also enquires about the person, place and how far away.
 
-After performing the basic wrangling measures, we converetd the `sur_mon_yr` column, whcih identifies the month for which the transaction is mentioned, to date format. The column `item_category` was recoded to reflect the categories mentioned int he schedule.
+After performing the basic wrangling measures, we converetd the `sur_mon_yr` column, whcih identifies the month for which the transaction is mentioned, to date format. The column `item_category` was recoded to reflect the categories mentioned int he schedule. The datasets fom SAT India did not have an `item_category` column instead it only had the `item_pur_sold` column which describes the assets bought or sold. Hence this column was recoded into the categories mentioned for `item_category`.
 
 It was notcied that files stemming from East india, has the information on distance to markets outside villlage, entered in two different column, such as `pur_dist` and `pur_pl_dist`. Similarly, `sold_dist` and `sold_pl_dist` have the same kind of information. On close inspection, for sales, the values in `sold_dist` seems more in number and meaningful. `sold_pl_dist` has only 5 observations. On the other hand `pur_pl_dist` has 156 observation and for the same observations `pur_dist` is missing. So we extrapolated the former on to the later, when the the latter is misisng for the 156 observations where the former is noon-missing.
 
@@ -1047,7 +1121,11 @@ Another aspect that requires attention is that the dataset is arranged in long f
 
 Then, each dataset was further subsetted to remove all observations where all the numeric columns \(last 3 columns\) were missing together and thus ensuring that any sales related entry in the index columns \(first 4 columns\) for purchase data can be removed and vice-versa. An identifier column was also added to both the datsets caleld `pur_sold` which will hold the string "purchased" and "sold" for the purchases and sales data respectively. Now both these datasets were appended into a single dataframe.
 
-The appended dataset was grouped across columns `hh_id, sur_mon_yr, pur_sold, 'item_category, from_whom` and the sum of quantity and cost and the mean of distance from village was calculated for each group. The data was widendened after aggregation across groups for further processing.
+A new column `month` was created from to the `sur_mon_yr` column to reflect the month for which the data corresponds to. Another new column `total_value` was created as a product of `quantity` and `market_cost`. Also, there were cases where `qauntity` was missing where the market cost was extrapolated as the `total_value`.
+
+The appended dataset was grouped across columns `hh_id, sur_yr, month, pur_sold, 'item_category, from_whom`. `from_whom` had missing values which were extrapolated as 'undefined'.
+
+The sum of total value of assets sold and purchased and the mean of distance from village was calculated for each group. The data was widendened after aggregation across groups for further processing.
 
 ### 3. Cultivation Schedule (VDSA -Y)
 
@@ -1123,9 +1201,13 @@ In total we have identified and removed 8 rows.
 
 For the remaining observations, it must be established that any analysis which we expect to conduct on the data will view this dataset not from the perspective of the crop types cultivated and not based on specific crop cultivated by the household. Having established same, we have grouped the dataset on the basis of `hh_id, plot_code, season` and type of crop cultivated. A new column `crop_type` was created after mapping the crop names existing in the dataset to a better and reduced naming system using the crop name mapper file [crop_names_map.json](). Then, the new names were furter mapped to their respective categories using the crop type mapper file [crop_type_map.json]().
 
-The dataset was grouped on the basis of `hh_id, plot_code, season, crop_type, crop_variety_type`. After being grouped, the columns `prct_area	op_main_prod_qty,	op_by_prod_qty,	op_ot_prod_qty`, which provides information on the percentage of plot area used for cultivation, and quantity of primary, subsidiary and other crops cultivated respectively, were aggregated and columns `op_main_prod_rate, op_by_prod_rate,	op_ot_prod_rate`, which provides information on the per unit price of primary, subsidiary and other crops cultivated respectively, were averaged to better reflect the groups. Thus, the data was widened for further processing.
+The dataset was grouped on the basis of `hh_id, plot_code, season, crop_type, crop_variety_type`. Misisng values in the grouping or index columns were reassigned as the string 'undefined'.
+
+After being grouped, the columns `prct_area	op_main_prod_qty,	op_by_prod_qty,	op_ot_prod_qty`, which provides information on the percentage of plot area used for cultivation, and quantity of primary, subsidiary and other crops cultivated respectively, were aggregated and columns `op_main_prod_rate, op_by_prod_rate,	op_ot_prod_rate`, which provides information on the per unit price of primary, subsidiary and other crops cultivated respectively, were averaged to better reflect the groups. Thus, the data was widened for further processing.
 
 We also have information on the plot area used for cultivation, however, it will be better sourced from the plotlist and cropping pattern schedule.
+
+Unique households in the data: 1238
 
 #### 3.2 Inputs for Cultivation
 
@@ -1159,6 +1241,10 @@ Afetr cleaning the string columns, presence of duplicate entries were inspected.
 The data also had information on the type of labour hired for each operation, the kind of machinery used and source from which the machinery was procured. However, those information were ignored and instead the total cost incurred, in terms of labour and materials, for each operation was calculated from the dataset. The total labour cost was calculated using the per unit cost and number of units of labour hired. A new column `labour_cost` was created as the product of `work_hr, wage` and then aggregated across `hh_id, plot_code, season, operation` level to arrive at the total labour cost for each operation.
 
 On the other hand, the value of each material used for for each operation was already provided in dataset. This, suppposedly, numeric column had a string value "\*\*\*\*\*\*\*\*\*\*" for household `IJH14B0048`. This value was removed and cast as missing. This column was aggregated at `hh_id, plot_code, season, operation` level.
+
+A new `month` column was created from the `sur_mon_yr` column. The data was then grouped at `hh_id, month, plot_code, season, operation` and widened for further processing.
+
+Unique households in the data: 1238
 
 ### 4. Plot List and Cropping Pattern
 
@@ -1338,6 +1424,7 @@ For the households:
 - IBH14C0200
 - IBH14C0201
 - IBH14C0202
-  can observe that the differences between duplicates arise from the float values in `irri_area`. so row 2 of all the above households will be removed. Household `IJH12D0036` and `IMH10D0312` have different crops but numeric values in `plot_area`, `crop_area` and `irri_area`is the same. So, row 2 will be removed to get a unique value.
+
+  we can observe that the differences between duplicates arise from the float values in `irri_area`. so row 2 of all the above households will be removed. Household `IJH12D0036` and `IMH10D0312` have different crops but numeric values in `plot_area`, `crop_area` and `irri_area`is the same. So, row 2 will be removed to get a unique value.
 
 Now that all duplicates are removed, we will proceed to widening the dataframe. To reduce the dimensionality involved, we can remove the `plot_name` column. This can be achieved by grouping by all the string columns except plot name. We have manually inspected these rows and they are similar in all except for the plot name. So a `grouby.agg` fucntionality of `Pandas` package will achieve the desired the result.

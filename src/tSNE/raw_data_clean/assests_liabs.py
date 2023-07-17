@@ -410,8 +410,8 @@ def assests_liabs():
 
         df["purpose"] = df["purpose"].map(purpose_dict)
         df["purpose"] = df["purpose"].str.strip().str.lower().str.replace(" ", "_")
-        print(df["purpose"].unique())
-        print(df["purpose"].dtype)
+        # print(df["purpose"].unique())
+        # print(df["purpose"].dtype)
 
         # # #pivoting the data and doing necessary cleaning
 
@@ -481,7 +481,13 @@ def assests_liabs():
             ],
         )
 
-        # print(df)
+        # converting df to float
+        cols = [col for col in df.columns if col not in ["hh_id_panel"]]
+        df = to_float(
+            df=df,
+            cols=cols,
+            error_action="raise",
+        )
 
         df.to_csv(interim_file, index=False)
 

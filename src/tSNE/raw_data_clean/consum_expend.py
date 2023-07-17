@@ -15,7 +15,7 @@ def consum_expend():
     This function only covers food expenditure of SAT India.
     """
 
-    tags = ["Food_item", "Non_food_item", "Exp_food_non_food"]
+    tags = ["Food_item", "Non_food_item", "Exp_food_non_food"]  #
 
     data_holder_list = []  # defining an empty list to hold the datasets
 
@@ -92,7 +92,7 @@ def consum_expend():
 
                 check_duplicates(
                     df=df,
-                    index_cols=["hh_id", "sur_yr", "sur_mon_yr", "item_type"],
+                    index_cols=["hh_id", "sur_mon_yr", "item_type"],
                     master_check=True,
                     write_file=True,
                 )
@@ -271,22 +271,54 @@ def consum_expend():
                     .agg(sum)
                     .reset_index()
                 )
+                df = df[~(df["sur_mon_yr"].astype(str) == "2015-06-01")]  # verified
 
             data_holder_list.append(df)
 
         # concatenating the datasets
         df = pd.concat(data_holder_list, axis=0)
 
+        # adding month column
+        df["month"] = pd.to_datetime(df["sur_mon_yr"]).dt.month_name()
+
+        # ensuring that all columns have year values
+        conds = [
+            (df["sur_yr"].isna()) & (df["hh_id"].str.slice(3, 5) == "10"),
+            (df["sur_yr"].isna()) & (df["hh_id"].str.slice(3, 5) == "11"),
+            (df["sur_yr"].isna()) & (df["hh_id"].str.slice(3, 5) == "12"),
+            (df["sur_yr"].isna()) & (df["hh_id"].str.slice(3, 5) == "13"),
+            (df["sur_yr"].isna()) & (df["hh_id"].str.slice(3, 5) == "14"),
+        ]
+
+        opts = [2010, 2011, 2012, 2013, 2014]
+
+        df["sur_yr"] = np.select(conds, opts, default=df["sur_yr"])
+
+        # droppimg sur_mon_yr values as we have year and month capturing the necesary information
+        df.drop("sur_mon_yr", axis=1, inplace=True)
+
+        check_duplicates(
+            df=df,
+            index_cols=["hh_id", "sur_yr" "month", "item_type"],
+            master_check=False,
+            write_file=True,
+        )
+
         # exporting long dataframe
         long_frame(tag="consumption_expenditure", df=df)
 
         df = widen_frame(
             df=df,
-            index_cols=["hh_id", "sur_mon_yr", "item_type"],
+            index_cols=["hh_id", "month", "item_type"],
         )
 
-        print(df)
-        print(df.shape)
+        # converting df to float
+        cols = [col for col in df.columns if col not in ["hh_id_panel"]]
+        df = to_float(
+            df=df,
+            cols=cols,
+            error_action="raise",
+        )
 
         df.to_csv(interim_file, index=False)
 

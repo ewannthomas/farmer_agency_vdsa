@@ -187,7 +187,43 @@ def building():
 
         df = widen_frame(df=df, index_cols=["hh_id", "item_building"])
 
-        print(df)
+        # reassigning values in faciltiies columns to yes or no as dummies
+        for col in df.columns:
+            if col not in [
+                "hh_id_panel",
+                "sur_yr",
+                "facility_Area Of Courtyard",
+                "facility_Type Of House",
+                "facility_building_value",
+            ]:
+                col_mapper = {"yes": 1, "no": 0, "2": 0, "rented": 0, "own": 1}
+                df[col] = df[col].str.strip().str.lower()
+                df[col] = df[col].replace(col_mapper)
+                # df[col] = df[col].fillna(0)
+
+        # cleaning type of house column
+        df = to_float(df=df, cols=["facility_Type Of House"], error_action="raise")
+        col_mapper = {
+            1: "Strong walls and RCC roof",
+            2: "Strong walls and other type of roof",
+            3: "Mud walls with thatched roof",
+            4: "Mud walls with other roof",
+            5: "Others",
+            0: np.nan,
+        }
+        df["facility_Type Of House"] = df["facility_Type Of House"].replace(
+            col_mapper
+        )  # verified.
+
+        df = pd.get_dummies(df, columns=["facility_Type Of House"], dtype=float)
+
+        # converting df to float
+        cols = [col for col in df.columns if col not in ["hh_id_panel"]]
+        df = to_float(
+            df=df,
+            cols=cols,
+            error_action="raise",
+        )
 
         df.to_csv(interim_file, index=False)
 

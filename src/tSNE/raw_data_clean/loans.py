@@ -77,6 +77,11 @@ def loans():
             master_check=True,
             write_file=True,
         )
+        # adding month column
+        df["month"] = pd.to_datetime(df["sur_mon_yr"]).dt.month_name()
+
+        # droppimg sur_mon_yr values as we have year and month capturing the necesary information
+        df.drop("sur_mon_yr", axis=1, inplace=True)
 
         df.rename(
             columns={"loan_rec": "loan_received", "loan_int": "interest_on_loan"},
@@ -90,7 +95,7 @@ def loans():
 
         df = widen_frame(
             df=df,
-            index_cols=["hh_id", "sur_mon_yr", "loan_source"],
+            index_cols=["hh_id", "month", "loan_source"],
             wide_cols=["loan_repaid", "loan_received", "interest_on_loan"],
             agg_dict={
                 "loan_repaid": "sum",

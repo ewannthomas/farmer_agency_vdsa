@@ -104,6 +104,10 @@ def gender_decs_making():
 
         df = widen_frame(df=df, index_cols=["hh_id", "reso_category", "resource"])
 
+        # getting dummies of all the decision columns
+        cols = [col for col in df.columns if col not in ["hh_id_panel", "sur_yr"]]
+        df = pd.get_dummies(data=df, columns=cols, dtype=float)
+
         df.to_csv(interim_file, index=False)
 
     else:
