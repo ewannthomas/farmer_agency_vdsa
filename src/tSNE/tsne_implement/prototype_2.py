@@ -1,6 +1,7 @@
 from utils.tsne.dir_values import dir_values
 from utils.tsne.merge_data import merge_data
 from utils.tsne.column_reducer import column_reducer
+from utils.to_float import to_float
 import pandas as pd
 
 
@@ -39,6 +40,14 @@ def p2_data_prep():
         input_paths = list(preprocessed_path.glob("prototype_2/*.csv"))
 
         df = merge_data(paths=input_paths)
+
+        # isloating the feature names
+        cols_missing = [
+            col for col in df.columns if col not in ["hh_id_panel", "sur_yr"]
+        ]
+
+        # ensuring all cols are floats
+        df = to_float(df=df, cols=cols_missing, error_action="raise")
 
         print(df)
 

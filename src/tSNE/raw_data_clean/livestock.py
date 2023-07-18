@@ -116,7 +116,7 @@ def livestock():
         )
 
         # grouping by and summing the numeric values at hh_id and livestock type
-        df = df.groupby(["hh_id", "livestock_type"]).agg(sum).reset_index()
+        df = df.groupby(["hh_id", "sur_yr", "livestock_type"]).agg(sum).reset_index()
 
         check_duplicates(
             df=df,
@@ -125,6 +125,7 @@ def livestock():
             write_file=True,
         )
 
+        # print(df["sur_yr"].unique())
         # exporting long dataframe
         long_frame(tag=tag, df=df)
 

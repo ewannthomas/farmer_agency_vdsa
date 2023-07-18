@@ -67,10 +67,10 @@ The datasets will be called from the sub-directory "data/interim/tsne" and the o
 
 #### Family_comp
 
-- columns before trim:8322
-- columns dropped with all NaN:2364
-- columns dropped with NaN beyond 0.6 threshold:5896
-- columns post reducing:62
+- columns before trim:3616
+- columns dropped with all NaN:4
+- columns dropped with NaN beyond 0.6 threshold:2786
+- columns post reducing:826
 
 #### Farm_Equipment
 
@@ -109,7 +109,7 @@ The datasets will be called from the sub-directory "data/interim/tsne" and the o
 
 #### Gen_info
 
-- columns before trim:592
+- columns before trim:591
 - columns dropped with all NaN:0
 - columns dropped with NaN beyond 0.6 threshold:18
 - columns post reducing:574
@@ -124,23 +124,16 @@ The datasets will be called from the sub-directory "data/interim/tsne" and the o
 #### Landholding
 
 - columns before trim:8078
-- columns dropped with all NaN:842
+- columns dropped with all NaN:843
 - columns dropped with NaN beyond 0.6 threshold:2081
-- columns post reducing:5155
-
-#### Landholding123
-
-- columns before trim:6327
-- columns dropped with all NaN:1574
-- columns dropped with NaN beyond 0.6 threshold:4718
-- columns post reducing:35
+- columns post reducing:5154
 
 #### Livestock_inv
 
 - columns before trim:62
 - columns dropped with all NaN:0
-- columns dropped with NaN beyond 0.6 threshold:54
-- columns post reducing:8
+- columns dropped with NaN beyond 0.6 threshold:48
+- columns post reducing:14
 
 #### Loans
 
@@ -183,10 +176,3 @@ The datasets will be called from the sub-directory "data/interim/tsne" and the o
 - columns dropped with all NaN:0
 - columns dropped with NaN beyond 0.6 threshold:6
 - columns post reducing:20
-
-#### total_cult_yr
-
-- columns before trim:5
-- columns dropped with all NaN:0
-- columns dropped with NaN beyond 0.6 threshold:1
-- columns post reducing:4

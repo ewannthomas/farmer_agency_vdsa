@@ -169,6 +169,9 @@ def gen_info_cleaner():
         cols = [col for col in cols if col in string_cols]
         df = pd.get_dummies(data=df, columns=cols, dtype=float)
 
+        # removing hh_id because gen_info need not be widened where hh_id will be replaced by hh_id_panel
+        df.drop("hh_id", axis=1, inplace=True)
+
         print(df)
 
         df.to_csv(interim_file, index=False)

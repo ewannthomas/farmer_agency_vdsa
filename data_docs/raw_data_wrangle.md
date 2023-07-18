@@ -67,6 +67,46 @@ It is observed that households `IBH14C0057` and `IBH14D0010` have information re
 
 The column `gender` was recoded to a dummy variable where all male entries were recoded to 0 and female entires to 1. The column was later renamed to `female`. Similarly the column `liv_wit_oth` has been recoded to make the string `family` to say `with_family`.
 
+The `age` column contained 118 values which had string values such as `5 months,6 months,4months,7months,1 month`. These values were extrapolated to a new column and the string values were converted to float type without loss of information. Later this new column was rename to used in lieu of `age`. 
+
+On careful examination of the dataset, we noticed that the columns `hh_id, sl_no` can uniquely identify the data. Howvever, there are 22 possible duplicate entries stemming from change individual status of the `ch_stat` column. The following are those 22 observations:
+| sur_yr | hh_id | sl_no | ch_stat | relation | female | age | mari_stat | marriage_yr | edu_level | yrs_edu | yr_edu_ter | rea_stop_edu | main_occp | subs_occp | deg_ab | liv_wf_os | os_place | os_dist | freq_visits | height | weight | arm_circum | dups |
+| ------ | ---------- | ----- | ------- | -------- | ------ | --- | --------- | ----------- | --------- | ------- | ---------- | ------------ | --------- | --------- | ------ | ----------- | -------- | ------- | ----------- | ------ | ------ | ---------- | ---- |
+| 2012 | IBH12C0035 | 5 | 0 | 10 | 1 | 20 | 2 | | 4 | 12 | | | 9 | 10 | 1 | with family | | | 150.5 | 41 | 23 | TRUE |
+| 2012 | IBH12C0035 | 5 | 1 | | | | | | | | | | | | | | | | | | | | TRUE |
+| 2014 | IBH14D0038 | 6 | 0 | 8 | 1 | 29 | 1 | 2000 | 2 | 7 | 1995 | 7 | 10 | | 1 | with family | | | | | | TRUE |
+| 2014 | IBH14D0038 | 6 | 4 | 8 | 1 | 29 | 1 | 2000 | 2 | 7 | 1995 | 7 | 10 | | 1 | outside | MUMBAI | 2000 | 5 | | | | TRUE |
+| 2014 | IBH14D0038 | 7 | 0 | 10 | 1 | 17 | 2 | | 3 | 9 | | | 9 | 10 | 5 | with family | | | | | | TRUE |
+| 2014 | IBH14D0038 | 7 | 4 | 10 | 1 | 17 | 2 | | 4 | 11 | | | 9 | 10 | 5 | outside | PATNA | 2000 | 3 | | | | TRUE |
+| 2014 | IBH14D0038 | 8 | 0 | 9 | 0 | 13 | 2 | | 2 | 7 | | | 9 | 10 | 5 | with family | | | | | | TRUE |
+| 2014 | IBH14D0038 | 8 | 4 | 9 | 0 | 13 | 2 | | 3 | 9 | | | 9 | 10 | 5 | outside | PATNA | 2000 | 3 | | | | TRUE |
+| 2014 | IBH14D0038 | 9 | 0 | 9 | 0 | 9 | 2 | | 1 | 2 | | | 9 | 10 | 5 | with family | | | | | | TRUE |
+| 2014 | IBH14D0038 | 9 | 4 | 9 | 0 | 9 | 2 | | 1 | 4 | | | 9 | 10 | 5 | outside | PATNA | 2000 | 3 | | | | TRUE |
+| 2014 | IBH14D0038 | 10 | 0 | 9 | 0 | 11 | 2 | | 1 | 4 | | | 9 | 10 | 5 | with family | | | | | | TRUE |
+| 2014 | IBH14D0038 | 10 | 4 | 9 | 0 | 11 | 2 | | 2 | 6 | | | 9 | 10 | 5 | outside | MUMBAI | 2000 | 5 | | | | TRUE |
+| 2014 | IBH14D0038 | 11 | 0 | 10 | 1 | 8 | 2 | | 1 | 1 | | | 9 | 10 | 5 | with family | | | | | | TRUE |
+| 2014 | IBH14D0038 | 11 | 4 | 10 | 1 | 8 | 2 | | 1 | 3 | | | 9 | 10 | 5 | outside | MUMBAI | 2000 | 5 | | | | TRUE |
+| 2014 | IJH14A0030 | 1 | 3 | | | | | | | | | | | | | | | | | | | | TRUE |
+| 2014 | IJH14A0030 | 1 | 8 | 1 | 0 | 22 | 2 | | 4 | 12 | 2011 | 5 | 1 | 3 | 1 | with family | | | 158.5 | 52.6 | 26.5 | TRUE |
+| 2014 | IJH14A0054 | 2 | 0 | 4 | 1 | 59 | 1 | 1972 | 3 | 8 | 1970 | 2 | 10 | 5 | 1 | with family | | | 150.7 | | | TRUE |
+| 2014 | IJH14A0054 | 2 | 3 | | | | | | | | | | | | | | | | | | | | TRUE |
+| 2013 | IOR13C0047 | 3 | 1 | | | | | | | | | | | | | | | | | | | | TRUE |
+| 2013 | IOR13C0047 | 3 | 0 | 6 | 1 | 21 | 2 | | 3 | 10 | 2006 | 6 | 6 | 10 | 3 | with family | | | | 146.5 | 49.3 | 25.2 | TRUE |
+| 2013 | IOR13D0055 | 8 | 4 | | | | | | | | | | 10 | | 3 | with family | | | | 164 | 58 | 28 | TRUE |
+| 2013 | IOR13D0055 | 8 | 0 | 8 | 1 | 23 | 1 | 2011 | 3 | 10 | 2005 | 1 | 10 | | 3 | with family | | | | 148 | 57.2 | 28 | TRUE |
+
+11 observations from the above were removed on the criteria of retaining maximum information and eliminating duplication.
+
+After removing the second round of duplicates, the column `sl_no` exhibits a special case where it's not an NaN or missing value but an empty value at household `IGJ13B0048` for its last member. There are 7 valid entries already in existing for the same hosuehold. The empty `sl_no` is not identical to anyother member of the household and hence it was assigned a value of "8".
+
+Again the column `sl_no` was inspected for any other probable errors and we noticed that the column, though being an object or string by nature, is not repsonding to string match or call fucntions. Hence the same was reinitialized as a string and stored with the dataframe. Then, immediately, it was converted to float to avaoid any loss of information.
+
+Later, the following columns which had categorical values, `mari_stat,	edu_level,	yrs_edu, rea_stop_edu, main_occp, subs_occp, deg_ab, liv_wf_os, freq_visits` were converted to dummy variables for each of their corresponding categories.
+
+Please note, the columns `marriage_yr, yr_edu_ter, os_place` are technically present in the data and available in the long data. But isn't considered for wideneing the data because with all the variables we were facing more that 4.3 lakhs rows and a file sie of more than 20GB which raised a memory exhaustion error. The above 3 variables are not specifically adding any value to the data quality and have numerous rogue strings which would then be considered as a valid category. Hence these 3 columns were omitted from the widening process.
+
+The data was then widened.
+
 Unique households in the data: 1526
 
 #### 1.2 Landholding information (VDSA – D)
@@ -75,6 +115,8 @@ The landholding information schedule of the GES questionnaire enquires about inf
 
 The duplicates were checked on columns `hh_id`, `sl_no`, and `plot_code`. There were no duplicates.
 Later, all columns which had numeric values were converted to float data type. Teh column `plot_name` was removed because `plot_code` enabled identification of the rows uniquely. Columns on ownership status, change of ownership status, source of irrigation, soil type, fertility and degradation, bunding and bunding type were reassigned to their corrsponding string based vategory values as in the questionnaire. Columns which housed values beyond any defined category of any column was enetered as col_name_others. Such other column which had string values were removed fromthe datastet. e.g.: bund_type_others
+
+Also, the column revenue had 1487 observations with the rogue string "DK". This is expected to mean "Don't Know" and these cases were set to missing to avoid string value presence in a numeric column.
 
 For the follwoing households, `plot_code` was missing and no other information except household id and year were available:
 

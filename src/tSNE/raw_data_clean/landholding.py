@@ -203,6 +203,10 @@ def landholding():
         }
         df["bund_type"] = df["bund_type"].replace(bunding_dict)
 
+        # cleaning revenue column
+        df["revenue"] = np.where(df["revenue"] == "DK", np.nan, df["revenue"])
+        print(df["revenue"].unique())
+
         ############################################################################################################
 
         # # Cleaning Duplicates ####################################################################################

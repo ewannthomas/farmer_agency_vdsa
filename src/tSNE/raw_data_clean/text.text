@@ -1,0 +1,89 @@
+| sur_yr | hh_id      | sl_no | ch_stat | relation | female | age | mari_stat | marriage_yr | edu_level | yrs_edu | yr_edu_ter | rea_stop_edu | main_occp | subs_occp | deg_ab | liv_wf_os   | os_place | os_dist | freq_visits | height | weight | arm_circum | dups |
+| ------ | ---------- | ----- | ------- | -------- | ------ | --- | --------- | ----------- | --------- | ------- | ---------- | ------------ | --------- | --------- | ------ | ----------- | -------- | ------- | ----------- | ------ | ------ | ---------- | ---- |
+| 2012   | IBH12C0035 | 5     | 0       | 10       | 1      | 20  | 2         |             | 4         | 12      |            |              | 9         | 10        | 1      | with family |          |         | 150.5       | 41     | 23     | TRUE       |
+| 2012   | IBH12C0035 | 5     | 1       |          |        |     |           |             |           |         |            |              |           |           |        |             |          |         |             |        |        |            | TRUE |
+| 2014   | IBH14D0038 | 6     | 0       | 8        | 1      | 29  | 1         | 2000        | 2         | 7       | 1995       | 7            | 10        |           | 1      | with family |          |         |             |        |        | TRUE       |
+| 2014   | IBH14D0038 | 6     | 4       | 8        | 1      | 29  | 1         | 2000        | 2         | 7       | 1995       | 7            | 10        |           | 1      | outside     | MUMBAI   | 2000    | 5           |        |        |            | TRUE |
+| 2014   | IBH14D0038 | 7     | 0       | 10       | 1      | 17  | 2         |             | 3         | 9       |            |              | 9         | 10        | 5      | with family |          |         |             |        |        | TRUE       |
+| 2014   | IBH14D0038 | 7     | 4       | 10       | 1      | 17  | 2         |             | 4         | 11      |            |              | 9         | 10        | 5      | outside     | PATNA    | 2000    | 3           |        |        |            | TRUE |
+| 2014   | IBH14D0038 | 8     | 0       | 9        | 0      | 13  | 2         |             | 2         | 7       |            |              | 9         | 10        | 5      | with family |          |         |             |        |        | TRUE       |
+| 2014   | IBH14D0038 | 8     | 4       | 9        | 0      | 13  | 2         |             | 3         | 9       |            |              | 9         | 10        | 5      | outside     | PATNA    | 2000    | 3           |        |        |            | TRUE |
+| 2014   | IBH14D0038 | 9     | 0       | 9        | 0      | 9   | 2         |             | 1         | 2       |            |              | 9         | 10        | 5      | with family |          |         |             |        |        | TRUE       |
+| 2014   | IBH14D0038 | 9     | 4       | 9        | 0      | 9   | 2         |             | 1         | 4       |            |              | 9         | 10        | 5      | outside     | PATNA    | 2000    | 3           |        |        |            | TRUE |
+| 2014   | IBH14D0038 | 10    | 0       | 9        | 0      | 11  | 2         |             | 1         | 4       |            |              | 9         | 10        | 5      | with family |          |         |             |        |        | TRUE       |
+| 2014   | IBH14D0038 | 10    | 4       | 9        | 0      | 11  | 2         |             | 2         | 6       |            |              | 9         | 10        | 5      | outside     | MUMBAI   | 2000    | 5           |        |        |            | TRUE |
+| 2014   | IBH14D0038 | 11    | 0       | 10       | 1      | 8   | 2         |             | 1         | 1       |            |              | 9         | 10        | 5      | with family |          |         |             |        |        | TRUE       |
+| 2014   | IBH14D0038 | 11    | 4       | 10       | 1      | 8   | 2         |             | 1         | 3       |            |              | 9         | 10        | 5      | outside     | MUMBAI   | 2000    | 5           |        |        |            | TRUE |
+| 2014   | IJH14A0030 | 1     | 3       |          |        |     |           |             |           |         |            |              |           |           |        |             |          |         |             |        |        |            | TRUE |
+| 2014   | IJH14A0030 | 1     | 8       | 1        | 0      | 22  | 2         |             | 4         | 12      | 2011       | 5            | 1         | 3         | 1      | with family |          |         | 158.5       | 52.6   | 26.5   | TRUE       |
+| 2014   | IJH14A0054 | 2     | 0       | 4        | 1      | 59  | 1         | 1972        | 3         | 8       | 1970       | 2            | 10        | 5         | 1      | with family |          |         | 150.7       |        |        | TRUE       |
+| 2014   | IJH14A0054 | 2     | 3       |          |        |     |           |             |           |         |            |              |           |           |        |             |          |         |             |        |        |            | TRUE |
+| 2013   | IOR13C0047 | 3     | 1       |          |        |     |           |             |           |         |            |              |           |           |        |             |          |         |             |        |        |            | TRUE |
+| 2013   | IOR13C0047 | 3     | 0       | 6        | 1      | 21  | 2         |             | 3         | 10      | 2006       | 6            | 6         | 10        | 3      | with family |          |         |             | 146.5  | 49.3   | 25.2       | TRUE |
+| 2013   | IOR13D0055 | 8     | 4       |          |        |     |           |             |           |         |            |              | 10        |           | 3      | with family |          |         |             | 164    | 58     | 28         | TRUE |
+| 2013   | IOR13D0055 | 8     | 0       | 8        | 1      | 23  | 1         | 2011        | 3         | 10      | 2005       | 1            | 10        |           | 3      | with family |          |         |             | 148    | 57.2   | 28         | TRUE |
+
+
+
+        ###############################################################################################################
+        # this is special move to remove members whio changed their status in the household by marriage, migration etc and are thus repeating themselves.
+        # we observe 22 such obs and hence 11 will be removed. All entries were manually verified by inspecting the dups.csv created by check_duplicates util function
+        # removing duplicates across ch_stat variables in 22 obs
+
+        # IBH12C0035
+        df = df[
+            ~(
+                (df["hh_id"] == "IBH12C0035")
+                & (df["sl_no"] == "5")
+                & (df["ch_stat"] == "1")
+            )
+        ]
+
+        # IBH14D0038 fuur memeber of this family changed status
+        df = df[
+            ~((df["hh_id"] == "IBH14D0038") & (df["sl_no"] == 6) & (df["ch_stat"] == 0))
+        ]
+
+        df = df[
+            ~((df["hh_id"] == "IBH14D0038") & (df["sl_no"] == 7) & (df["ch_stat"] == 0))
+        ]
+        df = df[
+            ~((df["hh_id"] == "IBH14D0038") & (df["sl_no"] == 8) & (df["ch_stat"] == 0))
+        ]
+        df = df[
+            ~((df["hh_id"] == "IBH14D0038") & (df["sl_no"] == 9) & (df["ch_stat"] == 0))
+        ]
+        df = df[
+            ~(
+                (df["hh_id"] == "IBH14D0038")
+                & (df["sl_no"] == 10)
+                & (df["ch_stat"] == 0)
+            )
+        ]
+        df = df[
+            ~(
+                (df["hh_id"] == "IBH14D0038")
+                & (df["sl_no"] == 11)
+                & (df["ch_stat"] == 0)
+            )
+        ]
+
+        # IJH14A0030
+        df = df[
+            ~((df["hh_id"] == "IJH14A0030") & (df["sl_no"] == 1) & (df["ch_stat"] == 3))
+        ]
+
+        # IJH14A0054
+        df = df[
+            ~((df["hh_id"] == "IJH14A0054") & (df["sl_no"] == 2) & (df["ch_stat"] == 3))
+        ]
+
+        # IOR13C0047
+        df = df[
+            ~((df["hh_id"] == "IOR13C0047") & (df["sl_no"] == 3) & (df["ch_stat"] == 1))
+        ]
+
+        # IOR13D0055
+        df = df[
+            ~((df["hh_id"] == "IOR13D0055") & (df["sl_no"] == 8) & (df["ch_stat"] == 4))
+        ]

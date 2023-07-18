@@ -18,7 +18,7 @@ def to_float(df: pd.DataFrame, cols: list, error_action="ignore"):
 
     df.to_csv(temp_file, index=False)
 
-    df = pd.read_csv(temp_file)
+    df = pd.read_csv(temp_file, low_memory=False)
 
     for col in cols:
         try:
@@ -31,7 +31,7 @@ def to_float(df: pd.DataFrame, cols: list, error_action="ignore"):
 
     df.to_csv(temp_file, index=False)
 
-    df = pd.read_csv(temp_file)
+    df = pd.read_csv(temp_file, low_memory=False)
     temp_file.unlink()
 
     # rechecking presence of string columns in the converted file
